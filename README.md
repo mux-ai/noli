@@ -268,3 +268,4 @@ scripts/gate.sh            # phase gates: tests, vet, dependency rules, contract
 go test ./...              # all Go tests
 npm --prefix integrations/pi test
 ```
+<img width="2992" height="1285" alt="Screenshot from 2026-07-20 15-54-16" src="https://github.com/user-attachments/assets/b6e738c8-604a-4f26-af51-09c9b4f37674" />
