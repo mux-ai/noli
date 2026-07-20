@@ -12,10 +12,11 @@ implementation_paths:
 
 ## Usage
 
-Run the Codex installer against one repository for checked-in guidance, or pass `--global` to install the skill and managed first-run guidance for the current user across repositories. Global installation preserves existing Codex instructions and asks once in each repository that has neither an enabled nor disabled Noli state. Codex uses the same bounded local CLI operations in both modes.
+Run the Codex installer against one repository for checked-in guidance, or pass `--global` to install the skill and managed first-run guidance for the current user across repositories. Global installation preserves existing Codex instructions and asks once in each repository that has neither an enabled nor disabled Noli state. Codex uses the same bounded local CLI operations in both modes. Run the Codex uninstaller with `--global` to safely remove its guidance and release its ownership of the shared skill.
 
 ## Relationships
 
 - Enforced by: [Agent Global First-Run Choice](/rules/agent-global-first-run-choice.md)
+- Enforced by: [Safe Agent Integration Removal](/rules/safe-agent-integration-removal.md)
 - Follows: [Retrieve Knowledge Before Coding](/workflows/retrieve-before-coding.md)
 - Uses: [Noli CLI](/components/noli-cli.md)

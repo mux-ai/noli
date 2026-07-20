@@ -12,10 +12,11 @@ implementation_paths:
 
 ## Usage
 
-Install `CLAUDE.md`, the `/noli-context` command, and the shared Noli skill into a target repository, or pass `--global` to install them below `CLAUDE_CONFIG_DIR` for the current user. Global installation preserves existing instructions and applies the first-run choice in every undecided repository. Claude invokes the local CLI and grounds answers in returned source concept IDs.
+Install `CLAUDE.md`, the `/noli-context` command, and the shared Noli skill into a target repository, or pass `--global` to install them below `CLAUDE_CONFIG_DIR` for the current user. Global installation preserves existing instructions and applies the first-run choice in every undecided repository. Claude invokes the local CLI and grounds answers in returned source concept IDs. Run the Claude uninstaller with `--global` to safely remove only the user-global Noli assets.
 
 ## Relationships
 
 - Enforced by: [Agent Global First-Run Choice](/rules/agent-global-first-run-choice.md)
+- Enforced by: [Safe Agent Integration Removal](/rules/safe-agent-integration-removal.md)
 - Follows: [Retrieve Knowledge Before Coding](/workflows/retrieve-before-coding.md)
 - Uses: [Noli CLI](/components/noli-cli.md)

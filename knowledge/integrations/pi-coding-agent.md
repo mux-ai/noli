@@ -20,12 +20,13 @@ verified_api: "0.78"
 
 ## Usage
 
-Run `integrations/pi/install.sh` for a target repository, or pass `--global` to install the extension, shared skill, and managed first-run guidance for the current user across repositories. Ensure `noli` is on PATH or set an absolute `NOLI_BINARY_PATH`. The extension rejects shell execution, path escapes, invalid protocol output, timeout, cancellation, and output overflow.
+Run `integrations/pi/install.sh` for a target repository, or pass `--global` to install the extension, shared skill, and managed first-run guidance for the current user across repositories. Ensure `noli` is on PATH or set an absolute `NOLI_BINARY_PATH`. The extension rejects shell execution, path escapes, invalid protocol output, timeout, cancellation, and output overflow. Run the Pi uninstaller with `--global` to safely remove its native assets and release its ownership of the shared skill.
 
 ## Relationships
 
 - Enforced by: [Agent Global First-Run Choice](/rules/agent-global-first-run-choice.md)
 - Enforced by: [Repository Path Containment](/rules/repository-path-containment.md)
+- Enforced by: [Safe Agent Integration Removal](/rules/safe-agent-integration-removal.md)
 - Follows: [Native Pi Tool Extension](/decisions/native-pi-extension.md)
 - Uses: [Frozen JSON Protocol](/components/json-protocol.md)
 - Uses: [Noli CLI](/components/noli-cli.md)

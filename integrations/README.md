@@ -146,7 +146,29 @@ adapter against the installed Pi version with:
 npm --prefix <noli-repo>/integrations/pi test
 ```
 
-## 7. The developer stays in control (opt-in per repository)
+## 7. Uninstall user-global integrations
+
+Remove all three user-global integrations at once:
+
+```bash
+sh <noli-repo>/scripts/uninstall-global.sh
+```
+
+To remove just one agent, run its `uninstall.sh --global` script:
+
+```bash
+sh <noli-repo>/integrations/claude/uninstall.sh --global
+sh <noli-repo>/integrations/codex/uninstall.sh --global
+sh <noli-repo>/integrations/pi/uninstall.sh --global
+```
+
+These scripts preserve unrelated guidance and any Noli-managed file that was
+modified after installation. Codex and Pi coordinate ownership of their
+shared skill so uninstalling one does not break the other. Project-local
+integrations, knowledge bases, opt-out choices, and the Noli CLI are not
+removed. Re-running an uninstaller is a no-op.
+
+## 8. The developer stays in control (opt-in per repository)
 
 Installing the integration does **not** force Noli onto a project. On the
 first task in a repository the agent checks three states:

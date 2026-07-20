@@ -111,11 +111,16 @@ noli_namespace_clean() {
     test -f .noli/concepts.yaml || return 1
     test -f integrations/claude/commands/noli-context.md || return 1
     test -f integrations/claude/install.sh || return 1
+    test -f integrations/claude/uninstall.sh || return 1
     test -f integrations/codex/GLOBAL_AGENTS.md || return 1
+    test -f integrations/codex/uninstall.sh || return 1
+    test -f integrations/pi/uninstall.sh || return 1
     test -f integrations/shared/GLOBAL_GUIDANCE.md || return 1
     test -f integrations/shared/install-managed-guidance.sh || return 1
+    test -f integrations/shared/uninstall-managed.sh || return 1
     test -f integrations/shared/noli-starter.yaml || return 1
     test -f integrations/shared/noli-starter-concepts.yaml || return 1
+    test -f scripts/uninstall-global.sh || return 1
     test -f examples/todo-app/noli.yaml || return 1
     test ! -e okf.yaml || return 1
     test ! -e okf-agent-queries.yaml || return 1
@@ -214,13 +219,19 @@ gate8() {
     echo "== Phase 8 gate: Todo example and thin integrations =="
     check "pi integration tests" npm --prefix integrations/pi test
     check "install-local.sh syntax" sh -n scripts/install-local.sh
+    check "uninstall-global.sh syntax" sh -n scripts/uninstall-global.sh
     check "managed guidance helper syntax" sh -n integrations/shared/install-managed-guidance.sh
+    check "managed uninstall helper syntax" sh -n integrations/shared/uninstall-managed.sh
     check "claude install.sh syntax" sh -n integrations/claude/install.sh
+    check "claude uninstall.sh syntax" sh -n integrations/claude/uninstall.sh
     check "claude installer behavior" sh integrations/claude/install.test.sh
     check "codex install.sh syntax" sh -n integrations/codex/install.sh
+    check "codex uninstall.sh syntax" sh -n integrations/codex/uninstall.sh
     check "codex installer behavior" sh integrations/codex/install.test.sh
     check "pi install.sh syntax" sh -n integrations/pi/install.sh
+    check "pi uninstall.sh syntax" sh -n integrations/pi/uninstall.sh
     check "pi installer behavior" sh integrations/pi/install.test.sh
+    check "global uninstaller behavior" sh scripts/uninstall-global.test.sh
     check "Noli primary namespace files" noli_namespace_clean
     if [ -f noli.yaml ] && [ -d knowledge ]; then
         check "repository knowledge: OKF v0.1 standard validation" \

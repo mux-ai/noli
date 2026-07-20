@@ -7,4 +7,5 @@
 * [Noli Namespace Compatibility](/rules/noli-namespace-compatibility.md) - Noli owns the primary product namespace while legacy OKF product identifiers remain bounded deprecated aliases.
 * [OKF v0.1 Conformance](/rules/okf-v0-1-conformance.md) - Standard validation accepts the permissive Open Knowledge Format v0.1 consumption model.
 * [Repository Path Containment](/rules/repository-path-containment.md) - Local tools must not read, write, or execute through paths that escape the configured repository.
+* [Safe Agent Integration Removal](/rules/safe-agent-integration-removal.md) - User-global uninstall removes only Noli-managed agent assets while preserving project knowledge and unrelated or modified user files.
 * [Single Writer Per Target](/rules/single-writer-per-target.md) - At most one process may replace a project bundle or prepared-context output at a time.

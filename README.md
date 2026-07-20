@@ -36,6 +36,32 @@ repositories do not ask again. Pass a repository path instead of `--global`
 for a project-local integration, for example
 `integrations/claude/install.sh <repository>`.
 
+### Uninstall global agent integrations
+
+Remove Noli from all three agents for the current user:
+
+```bash
+sh scripts/uninstall-global.sh
+```
+
+Or remove one integration:
+
+```bash
+sh integrations/claude/uninstall.sh --global
+sh integrations/codex/uninstall.sh --global
+sh integrations/pi/uninstall.sh --global
+```
+
+The uninstallers remove only byte-matching Noli skills, commands, and
+extensions plus the marked Noli block inside global guidance. Existing
+instructions and modified files are preserved. Because Codex and Pi share
+`~/.agents/skills/noli-project-knowledge`, that skill remains until neither
+integration needs it. Re-running an uninstaller is safe.
+
+Uninstalling global integrations does not remove the `noli` CLI, the
+deprecated `okf` compatibility binary, or any repository's `noli.yaml`,
+`.noli/`, `knowledge/`, or `.noli/disabled` files.
+
 Requires Go 1.22+. The Pi integration tests require Node.js 22+ and an
 installed Pi 0.78-compatible CLI for the real-loader check.
 

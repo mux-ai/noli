@@ -483,6 +483,32 @@ concepts:
       - predicate: follows
         to: Bootstrap Repository Knowledge
 
+  - id: rules/safe-agent-integration-removal
+    type: Business Rule
+    title: Safe Agent Integration Removal
+    description: User-global uninstall removes only Noli-managed agent assets while preserving project knowledge and unrelated or modified user files.
+    tags: [agents, uninstall, global, safety, lifecycle]
+    sections:
+      - heading: Statement
+        content: >-
+          Global uninstallers remove the marked Noli guidance block and only
+          delete skill, command, and extension files that still match their
+          shipped sources. Symlinks, modified files, malformed marker blocks,
+          repository-local integrations, project knowledge, opt-out state,
+          and the CLI are preserved. Codex and Pi retain their shared skill
+          until neither integration remains, and repeated uninstall is safe.
+    relationships:
+      - predicate: applies-to
+        to: Claude Code Integration
+      - predicate: applies-to
+        to: Codex Integration
+      - predicate: applies-to
+        to: Pi Coding Agent Integration
+      - predicate: enforced-by
+        to: Run Acceptance Gates
+      - predicate: follows
+        to: Agent Global First-Run Choice
+
   - id: rules/single-writer-per-target
     type: Business Rule
     title: Single Writer Per Target
@@ -768,7 +794,8 @@ concepts:
           below `CLAUDE_CONFIG_DIR` for the current user. Global installation
           preserves existing instructions and applies the first-run choice in
           every undecided repository. Claude invokes the local CLI and grounds
-          answers in returned source concept IDs.
+          answers in returned source concept IDs. Run the Claude uninstaller
+          with `--global` to safely remove only the user-global Noli assets.
     relationships:
       - predicate: uses
         to: Noli CLI
@@ -776,6 +803,8 @@ concepts:
         to: Retrieve Knowledge Before Coding
       - predicate: enforced-by
         to: Agent Global First-Run Choice
+      - predicate: enforced-by
+        to: Safe Agent Integration Removal
 
   - id: integrations/codex
     type: Agent Integration
@@ -792,7 +821,9 @@ concepts:
           first-run guidance for the current user across repositories. Global
           installation preserves existing Codex instructions and asks once in
           each repository that has neither an enabled nor disabled Noli state.
-          Codex uses the same bounded local CLI operations in both modes.
+          Codex uses the same bounded local CLI operations in both modes. Run
+          the Codex uninstaller with `--global` to safely remove its guidance
+          and release its ownership of the shared skill.
     relationships:
       - predicate: uses
         to: Noli CLI
@@ -800,6 +831,8 @@ concepts:
         to: Retrieve Knowledge Before Coding
       - predicate: enforced-by
         to: Agent Global First-Run Choice
+      - predicate: enforced-by
+        to: Safe Agent Integration Removal
 
   - id: integrations/pi-coding-agent
     type: Agent Integration
@@ -818,7 +851,9 @@ concepts:
           first-run guidance for the current user across repositories. Ensure
           `noli` is on PATH or set an absolute `NOLI_BINARY_PATH`. The
           extension rejects shell execution, path escapes, invalid protocol
-          output, timeout, cancellation, and output overflow.
+          output, timeout, cancellation, and output overflow. Run the Pi
+          uninstaller with `--global` to safely remove its native assets and
+          release its ownership of the shared skill.
     relationships:
       - predicate: uses
         to: Noli CLI
@@ -830,3 +865,5 @@ concepts:
         to: Native Pi Tool Extension
       - predicate: enforced-by
         to: Agent Global First-Run Choice
+      - predicate: enforced-by
+        to: Safe Agent Integration Removal
