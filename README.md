@@ -14,18 +14,27 @@ plus `internal/`), which now runs on the same public engine packages.
 ## Installation
 
 ```bash
-sh scripts/install-local.sh                 # user-local CLI in ~/.local/bin
-sh integrations/codex/install.sh --global  # optional: enable Noli in every Codex repository
+sh scripts/install-local.sh                  # user-local CLI in ~/.local/bin
+sh integrations/codex/install.sh --global   # optional: every Codex repository
+sh integrations/claude/install.sh --global  # optional: every Claude Code repository
+sh integrations/pi/install.sh --global      # optional: every Pi repository
 # or manually:
 go build -buildvcs=false -o bin/noli ./cmd/noli
 ```
 
-The Codex `--global` mode is user-global, not system-wide. It installs the
-skill under `~/.agents/skills`, adds an idempotent managed block to the active
-global Codex guidance under `${CODEX_HOME:-~/.codex}`, and preserves existing
-instructions. New repositories ask once whether to initialize Noli; enabled
-and opted-out repositories do not ask again. Use
-`integrations/codex/install.sh <repository>` for a project-local integration.
+Each `--global` mode is user-global, not system-wide, and preserves existing
+agent instructions while adding one idempotent managed Noli block. Codex uses
+`~/.codex/AGENTS.md` plus `~/.agents/skills`; Claude Code uses
+`~/.claude/CLAUDE.md`, `~/.claude/skills`, and `~/.claude/commands`; Pi uses
+`~/.pi/agent/AGENTS.md`, `~/.pi/agent/extensions`, and the same shared
+`~/.agents/skills` copy as Codex. Standard agent-specific environment
+overrides remain supported (`CODEX_HOME` and `CLAUDE_CONFIG_DIR`); Pi's base
+directory can be overridden with `PI_CODING_AGENT_DIR`.
+
+New repositories ask once whether to initialize Noli; enabled and opted-out
+repositories do not ask again. Pass a repository path instead of `--global`
+for a project-local integration, for example
+`integrations/claude/install.sh <repository>`.
 
 Requires Go 1.22+. The Pi integration tests require Node.js 22+ and an
 installed Pi 0.78-compatible CLI for the real-loader check.

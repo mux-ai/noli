@@ -455,25 +455,29 @@ concepts:
       - predicate: enforced-by
         to: Run Acceptance Gates
 
-  - id: rules/codex-global-first-run-choice
+  - id: rules/agent-global-first-run-choice
     type: Business Rule
-    title: Codex Global First-Run Choice
-    description: User-global Codex guidance asks once before enabling Noli in a repository that has no recorded Noli state.
-    tags: [codex, agents, global, bootstrap, consent]
+    title: Agent Global First-Run Choice
+    description: User-global agent guidance asks once before enabling Noli in a repository that has no recorded Noli state.
+    tags: [agents, claude, codex, pi, global, bootstrap, consent]
     sections:
       - heading: Statement
         content: >-
-          Global installation places the shared skill under
-          `$HOME/.agents/skills` and adds managed guidance to the active
-          global Codex instruction file. A repository with `noli.yaml` or
-          `knowledge/` is enabled without a question; `.noli/disabled` records
-          an opt-out. When neither state exists, Codex asks once whether to
+          Each agent's global installer places the shared skill, guidance,
+          and any native command or extension in that agent's documented user
+          scope. A repository with `noli.yaml` or `knowledge/` is enabled
+          without a question; `.noli/disabled` records an opt-out. When
+          neither state exists, Claude Code, Codex, and Pi ask once whether to
           initialize Noli before implementation. Existing global instructions
-          must be preserved and repeated installation must not duplicate the
-          managed guidance block.
+          must be preserved, Codex and Pi reuse `$HOME/.agents/skills`, and
+          repeated installation must not duplicate managed guidance.
     relationships:
       - predicate: applies-to
+        to: Claude Code Integration
+      - predicate: applies-to
         to: Codex Integration
+      - predicate: applies-to
+        to: Pi Coding Agent Integration
       - predicate: enforced-by
         to: Run Acceptance Gates
       - predicate: follows
@@ -752,7 +756,7 @@ concepts:
   - id: integrations/claude-code
     type: Agent Integration
     title: Claude Code Integration
-    description: Repository guidance and a noli-context slash command for retrieving bounded project knowledge in Claude Code.
+    description: Project-local or user-global guidance, skill, and noli-context command for retrieving bounded project knowledge in Claude Code.
     tags: [claude, agents, integration]
     attributes:
       implementation_paths: [integrations/claude]
@@ -760,13 +764,18 @@ concepts:
       - heading: Usage
         content: >-
           Install `CLAUDE.md`, the `/noli-context` command, and the shared Noli
-          skill into the target repository. Claude invokes the local CLI and
-          grounds answers in returned source concept IDs.
+          skill into a target repository, or pass `--global` to install them
+          below `CLAUDE_CONFIG_DIR` for the current user. Global installation
+          preserves existing instructions and applies the first-run choice in
+          every undecided repository. Claude invokes the local CLI and grounds
+          answers in returned source concept IDs.
     relationships:
       - predicate: uses
         to: Noli CLI
       - predicate: follows
         to: Retrieve Knowledge Before Coding
+      - predicate: enforced-by
+        to: Agent Global First-Run Choice
 
   - id: integrations/codex
     type: Agent Integration
@@ -790,12 +799,12 @@ concepts:
       - predicate: follows
         to: Retrieve Knowledge Before Coding
       - predicate: enforced-by
-        to: Codex Global First-Run Choice
+        to: Agent Global First-Run Choice
 
   - id: integrations/pi-coding-agent
     type: Agent Integration
     title: Pi Coding Agent Integration
-    description: A project-local TypeScript extension exposing five bounded native Noli read tools to Pi.
+    description: A project-local or user-global TypeScript extension, shared skill, and guidance exposing five bounded native Noli read tools to Pi.
     tags: [pi, agents, integration, typescript]
     attributes:
       implementation_paths: [integrations/pi]
@@ -804,11 +813,12 @@ concepts:
     sections:
       - heading: Usage
         content: >-
-          Run `integrations/pi/install.sh` for the target repository, ensure
-          `noli` is on PATH or set an absolute `NOLI_BINARY_PATH`, then start Pi
-          from the repository. The extension rejects shell execution, path
-          escapes, invalid protocol output, timeout, cancellation, and output
-          overflow.
+          Run `integrations/pi/install.sh` for a target repository, or pass
+          `--global` to install the extension, shared skill, and managed
+          first-run guidance for the current user across repositories. Ensure
+          `noli` is on PATH or set an absolute `NOLI_BINARY_PATH`. The
+          extension rejects shell execution, path escapes, invalid protocol
+          output, timeout, cancellation, and output overflow.
     relationships:
       - predicate: uses
         to: Noli CLI
@@ -818,3 +828,5 @@ concepts:
         to: Repository Path Containment
       - predicate: follows
         to: Native Pi Tool Extension
+      - predicate: enforced-by
+        to: Agent Global First-Run Choice

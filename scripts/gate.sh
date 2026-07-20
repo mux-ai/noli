@@ -110,7 +110,10 @@ noli_namespace_clean() {
     test -f noli-agent-queries.yaml || return 1
     test -f .noli/concepts.yaml || return 1
     test -f integrations/claude/commands/noli-context.md || return 1
+    test -f integrations/claude/install.sh || return 1
     test -f integrations/codex/GLOBAL_AGENTS.md || return 1
+    test -f integrations/shared/GLOBAL_GUIDANCE.md || return 1
+    test -f integrations/shared/install-managed-guidance.sh || return 1
     test -f integrations/shared/noli-starter.yaml || return 1
     test -f integrations/shared/noli-starter-concepts.yaml || return 1
     test -f examples/todo-app/noli.yaml || return 1
@@ -211,9 +214,13 @@ gate8() {
     echo "== Phase 8 gate: Todo example and thin integrations =="
     check "pi integration tests" npm --prefix integrations/pi test
     check "install-local.sh syntax" sh -n scripts/install-local.sh
+    check "managed guidance helper syntax" sh -n integrations/shared/install-managed-guidance.sh
+    check "claude install.sh syntax" sh -n integrations/claude/install.sh
+    check "claude installer behavior" sh integrations/claude/install.test.sh
     check "codex install.sh syntax" sh -n integrations/codex/install.sh
     check "codex installer behavior" sh integrations/codex/install.test.sh
     check "pi install.sh syntax" sh -n integrations/pi/install.sh
+    check "pi installer behavior" sh integrations/pi/install.test.sh
     check "Noli primary namespace files" noli_namespace_clean
     if [ -f noli.yaml ] && [ -d knowledge ]; then
         check "repository knowledge: OKF v0.1 standard validation" \

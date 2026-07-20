@@ -1,7 +1,7 @@
 ---
 type: Agent Integration
 title: Pi Coding Agent Integration
-description: A project-local TypeScript extension exposing five bounded native Noli read tools to Pi.
+description: A project-local or user-global TypeScript extension, shared skill, and guidance exposing five bounded native Noli read tools to Pi.
 tags:
   - agents
   - integration
@@ -20,10 +20,11 @@ verified_api: "0.78"
 
 ## Usage
 
-Run `integrations/pi/install.sh` for the target repository, ensure `noli` is on PATH or set an absolute `NOLI_BINARY_PATH`, then start Pi from the repository. The extension rejects shell execution, path escapes, invalid protocol output, timeout, cancellation, and output overflow.
+Run `integrations/pi/install.sh` for a target repository, or pass `--global` to install the extension, shared skill, and managed first-run guidance for the current user across repositories. Ensure `noli` is on PATH or set an absolute `NOLI_BINARY_PATH`. The extension rejects shell execution, path escapes, invalid protocol output, timeout, cancellation, and output overflow.
 
 ## Relationships
 
+- Enforced by: [Agent Global First-Run Choice](/rules/agent-global-first-run-choice.md)
 - Enforced by: [Repository Path Containment](/rules/repository-path-containment.md)
 - Follows: [Native Pi Tool Extension](/decisions/native-pi-extension.md)
 - Uses: [Frozen JSON Protocol](/components/json-protocol.md)

@@ -46,37 +46,23 @@ reports `"valid": true`.
 
 ## 4. Wire up Claude Code
 
-Claude Code reads `CLAUDE.md` from the project root and slash commands from
-`.claude/commands/`.
+Install Claude Code guidance, the shared skill, and `/noli-context` into one
+repository:
 
 ```bash
-cd <your-project>   # e.g. <noli-repo>/examples/todo-app
-
-# Project instructions: tells Claude to query knowledge through Noli.
-cp <noli-repo>/integrations/claude/CLAUDE.md ./CLAUDE.md
-# If CLAUDE.md already exists, append the content instead of overwriting.
-
-# The /noli-context command:
-mkdir -p .claude/commands
-cp <noli-repo>/integrations/claude/commands/noli-context.md .claude/commands/
-
-# The skill with the operation reference, first-run protocol, and starter configs:
-mkdir -p .claude/skills/noli-project-knowledge
-cp <noli-repo>/integrations/shared/SKILL.md .claude/skills/noli-project-knowledge/
-cp <noli-repo>/integrations/shared/noli-starter.yaml .claude/skills/noli-project-knowledge/
-cp <noli-repo>/integrations/shared/noli-starter-concepts.yaml .claude/skills/noli-project-knowledge/
+sh <noli-repo>/integrations/claude/install.sh <your-project>
 ```
 
-Then start Claude Code in that directory and try:
+If `CLAUDE.md` exists, the installer preserves it and asks you to merge the
+Noli guidance manually. To install for every repository for the current user:
 
-```text
-/noli-context complete a todo item
+```bash
+sh <noli-repo>/integrations/claude/install.sh --global
 ```
 
-Claude runs the retrieval command, reads `data.context`, and answers with
-document IDs from `data.sources` as references. You can also just ask it to
-implement something ("implement the CompleteTodo use case") — `CLAUDE.md`
-instructs it to retrieve knowledge first.
+Global mode honors `CLAUDE_CONFIG_DIR`, preserves an existing user
+`CLAUDE.md`, and installs the skill and command below that directory. Start a
+new Claude Code session and try `/noli-context complete a todo item`.
 
 ## 5. Wire up Codex
 
@@ -128,8 +114,22 @@ tools: `noli_status`, `noli_search`, `noli_retrieve`, `noli_get`, and `noli_grap
 sh <noli-repo>/integrations/pi/install.sh <your-project>
 ```
 
-This installs `.pi/extensions/noli/index.ts` plus its subprocess runner. Ensure
-`noli` is on `PATH`, or set an absolute executable path before starting Pi:
+This installs `.pi/extensions/noli/index.ts`, its subprocess runner, and the
+shared skill under `.agents/skills`. To enable the extension, skill, and
+first-run decision in every repository for the current user:
+
+```bash
+sh <noli-repo>/integrations/pi/install.sh --global
+```
+
+Global mode installs the extension under `~/.pi/agent/extensions`, adds a
+managed Noli block to `~/.pi/agent/AGENTS.md`, and reuses
+`~/.agents/skills/noli-project-knowledge` with Codex. Override these roots
+with `PI_CODING_AGENT_DIR` and `NOLI_AGENT_SKILLS_DIR` when needed. Existing
+global guidance is preserved and repeat installation is idempotent.
+
+Ensure `noli` is on `PATH`, or set an absolute executable path before
+starting Pi:
 
 ```bash
 export NOLI_BINARY_PATH="$HOME/.local/bin/noli"

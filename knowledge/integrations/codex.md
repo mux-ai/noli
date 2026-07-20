@@ -16,6 +16,6 @@ Run the Codex installer against one repository for checked-in guidance, or pass 
 
 ## Relationships
 
-- Enforced by: [Codex Global First-Run Choice](/rules/codex-global-first-run-choice.md)
+- Enforced by: [Agent Global First-Run Choice](/rules/agent-global-first-run-choice.md)
 - Follows: [Retrieve Knowledge Before Coding](/workflows/retrieve-before-coding.md)
 - Uses: [Noli CLI](/components/noli-cli.md)
