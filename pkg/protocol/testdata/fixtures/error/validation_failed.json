@@ -1,0 +1,10 @@
+{
+  "ok": false,
+  "command": "generate",
+  "version": 1,
+  "error": {
+    "code": "VALIDATION_FAILED",
+    "message": "generated bundle failed validation; active knowledge was left unchanged",
+    "details": {"errors": "2"}
+  }
+}

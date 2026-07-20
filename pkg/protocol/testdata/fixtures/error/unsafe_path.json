@@ -1,0 +1,10 @@
+{
+  "ok": false,
+  "command": "prepare-agent-context",
+  "version": 1,
+  "error": {
+    "code": "UNSAFE_PATH",
+    "message": "output path escapes the allowed root after symlink resolution",
+    "details": {"path": "../outside"}
+  }
+}

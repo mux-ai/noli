@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "command": "search",
+  "version": 1,
+  "data": {
+    "query": "task completion validation",
+    "count": 2,
+    "results": [
+      {
+        "id": "rules/complete-task",
+        "type": "Business Rule",
+        "title": "Complete Task",
+        "description": "Rules that govern marking a task as completed.",
+        "score": 11
+      },
+      {
+        "id": "concepts/task-status",
+        "type": "Domain Entity",
+        "title": "Task Status",
+        "description": "Lifecycle states of a task.",
+        "score": 6
+      }
+    ]
+  }
+}

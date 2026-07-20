@@ -1,0 +1,43 @@
+version: 1
+project:
+  name: Todo App
+  description: Demonstration project for Noli.
+knowledge:
+  root: knowledge
+concept_types:
+  - type: Domain Entity
+    directory: concepts
+    identity_fields: [title]
+    required_fields: [title, description]
+  - type: Business Rule
+    directory: rules
+    identity_fields: [title]
+    required_fields: [title, description]
+    required_sections: [Statement]
+  - type: Application Component
+    directory: components
+    identity_fields: [title]
+    required_fields: [title, description]
+  - type: Workflow
+    directory: workflows
+    identity_fields: [title]
+    required_fields: [title, description]
+  - type: Architecture Decision
+    directory: decisions
+    identity_fields: [title]
+    required_fields: [title, description]
+relationships:
+  - predicate: applies-to
+    from: Business Rule
+    to: Domain Entity
+  - predicate: depends-on
+  - predicate: enforced-by
+  - predicate: uses
+  - predicate: follows
+retrieval:
+  search_limit: 5
+  max_hops: 1
+  max_documents: 8
+  max_characters: 14000
+agent:
+  queries_file: noli-agent-queries.yaml

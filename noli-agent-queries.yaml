@@ -1,0 +1,42 @@
+version: 1
+queries:
+  - name: implement-noli-change
+    query: Implement a change to the Noli architecture and CLI
+    types: [Business Rule, Application Component, Architecture Decision, Workflow]
+    search_limit: 6
+    max_hops: 2
+    max_documents: 12
+    max_characters: 18000
+    direction: both
+  - name: open-knowledge-format-conformance
+    query: Validate Open Knowledge Format v0.1 conformance for documents indexes logs links citations and metadata
+    types: [Business Rule, Domain Entity, Architecture Decision, Application Component]
+    search_limit: 6
+    max_hops: 2
+    max_documents: 12
+    max_characters: 18000
+    direction: both
+  - name: retrieval-and-protocol
+    query: Change bounded deterministic retrieval graph search or frozen JSON protocol behavior
+    types: [Business Rule, Application Component, Architecture Decision]
+    search_limit: 6
+    max_hops: 2
+    max_documents: 12
+    max_characters: 18000
+    direction: both
+  - name: concurrent-agent-writes
+    query: Coordinate three coding agents safely during knowledge generation and prepared context writes
+    types: [Business Rule, Application Component, Architecture Decision, Workflow, Agent Integration]
+    search_limit: 6
+    max_hops: 2
+    max_documents: 12
+    max_characters: 18000
+    direction: both
+  - name: agent-integrations
+    query: Use Noli project knowledge with Claude Code Codex and Pi coding agents
+    types: [Agent Integration, Workflow, Application Component, Business Rule]
+    search_limit: 6
+    max_hops: 2
+    max_documents: 12
+    max_characters: 18000
+    direction: both

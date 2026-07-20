@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "command": "get",
+  "version": 1,
+  "data": {
+    "document": {
+      "id": "rules/complete-task",
+      "type": "Business Rule",
+      "title": "Complete Task",
+      "description": "Rules that govern marking a task as completed.",
+      "tags": ["rule", "completion"],
+      "metadata": {"severity": "must"},
+      "links": [
+        {"target": "concepts/task-status", "predicate": "links-to"},
+        {"target": "concepts/todo-item", "predicate": "applies-to"}
+      ],
+      "body": "## Statement\n\nA task may only be completed when…\n"
+    }
+  }
+}

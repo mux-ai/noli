@@ -1,0 +1,10 @@
+{
+  "ok": false,
+  "command": "get",
+  "version": 1,
+  "error": {
+    "code": "DOCUMENT_NOT_FOUND",
+    "message": "document \"rules/missing\" was not found",
+    "details": {"id": "rules/missing"}
+  }
+}

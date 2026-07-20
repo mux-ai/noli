@@ -1,0 +1,9 @@
+{
+  "ok": false,
+  "command": "retrieve",
+  "version": 1,
+  "error": {
+    "code": "INTERNAL_ERROR",
+    "message": "an unexpected internal error occurred"
+  }
+}

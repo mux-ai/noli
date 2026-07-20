@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://okf-studio.local/schemas/concept-draft.schema.json",
+  "title": "Noli concept extraction response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["concepts"],
+  "properties": {
+    "concepts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/concept" }
+    }
+  },
+  "$defs": {
+    "concept": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["temporary_id", "type", "title", "description", "sections", "confidence"],
+      "properties": {
+        "temporary_id": { "type": "string", "minLength": 1 },
+        "type": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "resource": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "attributes": { "type": "object" },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["heading", "content"],
+            "properties": {
+              "heading": { "type": "string", "minLength": 1 },
+              "content": { "type": "string" }
+            }
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["predicate", "target_reference", "confidence"],
+            "properties": {
+              "predicate": { "type": "string", "minLength": 1 },
+              "target_reference": { "type": "string", "minLength": 1 },
+              "evidence": { "type": "string" },
+              "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+          }
+        },
+        "citations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source_id"],
+            "properties": {
+              "source_id": { "type": "string", "minLength": 1 },
+              "uri": { "type": "string" },
+              "page": { "type": "integer", "minimum": 0 },
+              "start_line": { "type": "integer", "minimum": 0 },
+              "end_line": { "type": "integer", "minimum": 0 },
+              "evidence": { "type": "string" }
+            }
+          }
+        },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

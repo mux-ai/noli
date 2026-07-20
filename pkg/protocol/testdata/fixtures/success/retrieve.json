@@ -1,0 +1,41 @@
+{
+  "ok": true,
+  "command": "retrieve",
+  "version": 1,
+  "data": {
+    "query": "Implement the CompleteTodo use case",
+    "context": "# Context for: Implement the CompleteTodo use case\n\n## Source: rules/complete-task (Business Rule, seed, score 11)\n\nA task may only be completed when…\n\n## Source: concepts/todo-item (Domain Entity, distance 1 via rules/complete-task, applies-to)\n\nThe core task entity…\n",
+    "sources": [
+      {
+        "id": "rules/complete-task",
+        "type": "Business Rule",
+        "title": "Complete Task",
+        "seed": true,
+        "score": 11,
+        "distance": 0,
+        "predecessor": "",
+        "relationship": "",
+        "truncated": false
+      },
+      {
+        "id": "concepts/todo-item",
+        "type": "Domain Entity",
+        "title": "Todo Item",
+        "seed": false,
+        "score": 0,
+        "distance": 1,
+        "predecessor": "rules/complete-task",
+        "relationship": "applies-to",
+        "truncated": false
+      }
+    ],
+    "statistics": {
+      "seed_count": 1,
+      "graph_count": 1,
+      "document_count": 2,
+      "character_count": 1830,
+      "max_characters": 14000,
+      "truncated": false
+    }
+  }
+}

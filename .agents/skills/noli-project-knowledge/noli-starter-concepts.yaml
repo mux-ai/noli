@@ -1,0 +1,28 @@
+# Structured concept inputs — the single source of truth for the knowledge
+# bundle. Add or edit concepts here, then run:
+#   noli generate --config noli.yaml --apply --format json
+# The Markdown documents, directory indexes, and knowledge-graph links are
+# all rendered deterministically from this file. Relationships may point at
+# another concept's title or canonical ID; allowed predicates come from the
+# relationships section of noli.yaml.
+concepts:
+  - type: Architecture Decision
+    title: Adopt OKF Project Knowledge
+    description: Agent-facing knowledge lives in OKF Markdown documents.
+    sections:
+      - heading: Decision
+        content: >-
+          Project knowledge is authored in .noli/concepts.yaml and rendered
+          into knowledge/ by the Noli CLI. Coding agents retrieve it through
+          noli retrieve instead of reading files directly.
+  - type: Domain Entity
+    title: Starter Concept
+    description: Placeholder domain entity; replace with real concepts.
+    sections:
+      - heading: Definition
+        content: >-
+          Replace this placeholder with a description of a real domain
+          entity from this project.
+    relationships:
+      - predicate: follows
+        to: Adopt OKF Project Knowledge

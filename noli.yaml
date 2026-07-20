@@ -1,0 +1,53 @@
+version: 1
+project:
+  name: Noli
+  description: Your friendly knowledge-format builder.
+  required_metadata: [description]
+knowledge:
+  root: knowledge
+concept_types:
+  - type: Domain Entity
+    directory: concepts
+    identity_fields: [title]
+    required_fields: [title, description]
+    required_sections: [Definition]
+  - type: Application Component
+    directory: components
+    identity_fields: [title]
+    required_fields: [title, description]
+    required_sections: [Responsibilities]
+  - type: Business Rule
+    directory: rules
+    identity_fields: [title]
+    required_fields: [title, description]
+    required_sections: [Statement]
+  - type: Workflow
+    directory: workflows
+    identity_fields: [title]
+    required_fields: [title, description]
+    required_sections: [Steps]
+  - type: Architecture Decision
+    directory: decisions
+    identity_fields: [title]
+    required_fields: [title, description]
+    required_sections: [Decision]
+  - type: Agent Integration
+    directory: integrations
+    identity_fields: [title]
+    required_fields: [title, description]
+    required_sections: [Usage]
+relationships:
+  - predicate: applies-to
+  - predicate: depends-on
+  - predicate: enforced-by
+  - predicate: uses
+  - predicate: follows
+retrieval:
+  search_limit: 6
+  max_hops: 2
+  max_documents: 12
+  max_characters: 18000
+agent:
+  queries_file: noli-agent-queries.yaml
+generation:
+  concept_files: [.noli/concepts.yaml]

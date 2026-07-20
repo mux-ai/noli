@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "command": "status",
+  "version": 1,
+  "data": {
+    "root": "examples/todo-app/knowledge",
+    "bundle_id": "sha256:2b7e151628aed2a6abf7158809cf4f3c762e7160f38b4da56a784d9045190cfe",
+    "document_count": 16,
+    "link_count": 24,
+    "types": [
+      {"type": "Application Component", "count": 2},
+      {"type": "Architecture Decision", "count": 1},
+      {"type": "Business Rule", "count": 3},
+      {"type": "Domain Entity", "count": 3},
+      {"type": "Workflow", "count": 2}
+    ]
+  }
+}

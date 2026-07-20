@@ -1,0 +1,7 @@
+version: 1
+name: product-support-example
+description: Demonstration-only project using fictional Nimbus Hub source material.
+goal: Create source-grounded knowledge for a product-support assistant.
+profile: product-support
+hints:
+  - Treat every bundled example source as demonstration data.

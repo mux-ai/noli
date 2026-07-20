@@ -1,0 +1,10 @@
+{
+  "ok": false,
+  "command": "list",
+  "version": 1,
+  "error": {
+    "code": "INVALID_FRONTMATTER",
+    "message": "concepts/todo-item.md: frontmatter is not a YAML mapping",
+    "details": {"document": "concepts/todo-item"}
+  }
+}

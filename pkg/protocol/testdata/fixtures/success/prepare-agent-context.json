@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "command": "prepare-agent-context",
+  "version": 1,
+  "data": {
+    "output": "/tmp/noli-agent-context-verification",
+    "bundle_id": "sha256:2b7e151628aed2a6abf7158809cf4f3c762e7160f38b4da56a784d9045190cfe",
+    "generated_at": "2026-07-20T00:00:00Z",
+    "manifest": "manifest.json",
+    "queries": [
+      {
+        "name": "complete-todo",
+        "file": "complete-todo.md",
+        "checksum": "sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+        "sources": ["rules/complete-task", "concepts/todo-item"],
+        "truncated": false
+      }
+    ]
+  }
+}

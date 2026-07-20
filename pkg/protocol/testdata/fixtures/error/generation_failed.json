@@ -1,0 +1,10 @@
+{
+  "ok": false,
+  "command": "generate",
+  "version": 1,
+  "error": {
+    "code": "GENERATION_FAILED",
+    "message": "concept file .noli/concepts.yaml: relationship target \"concepts/missing\" cannot be resolved",
+    "details": {"source": ".noli/concepts.yaml"}
+  }
+}

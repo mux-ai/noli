@@ -1,0 +1,10 @@
+{
+  "ok": false,
+  "command": "status",
+  "version": 1,
+  "error": {
+    "code": "KNOWLEDGE_NOT_FOUND",
+    "message": "knowledge root \"./missing/knowledge\" does not exist or is not a directory",
+    "details": {"root": "./missing/knowledge"}
+  }
+}

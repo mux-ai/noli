@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "command": "list",
+  "version": 1,
+  "data": {
+    "count": 2,
+    "documents": [
+      {
+        "id": "concepts/todo-item",
+        "type": "Domain Entity",
+        "title": "Todo Item",
+        "description": "The core task entity tracked by the Todo application.",
+        "tags": ["domain", "todo"]
+      },
+      {
+        "id": "rules/complete-task",
+        "type": "Business Rule",
+        "title": "Complete Task",
+        "description": "Rules that govern marking a task as completed.",
+        "tags": ["rule", "completion"]
+      }
+    ]
+  }
+}

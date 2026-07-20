@@ -1,0 +1,69 @@
+version: 1
+project:
+  name: Credit card reference example
+  description: Demonstration-only profile for organizing supplied credit-card reference documents; it contains no rates, offers, or promotions.
+  goal: Extract only facts supported by user-provided source material.
+  hints:
+    - This bundled profile is demonstration data, not financial advice.
+okf:
+  title: Credit Card Reference Knowledge
+  description: Demonstration structure for source-grounded card, fee, policy, eligibility, and reward concepts.
+  link_style: root-relative
+  safety_instructions:
+    - Do not provide financial advice or infer eligibility.
+    - Treat all rates, fees, and promotions as unknown unless explicitly present in retrieved sources.
+concept_types:
+  - type: Credit Card
+    directory: credit-cards
+    identity_fields: [title, issuer, product_code]
+    sections: [Overview, Features, Eligibility]
+    required_fields: [title]
+  - type: Eligibility Rule
+    directory: eligibility-rules
+    identity_fields: [title, jurisdiction]
+    sections: [Rule, Conditions, Exceptions]
+    required_fields: [title]
+  - type: Fee
+    directory: fees
+    identity_fields: [title, fee_type, applies_to]
+    sections: [Description, Amount, Conditions]
+    required_fields: [title]
+  - type: Financial Concept
+    directory: financial-concepts
+    identity_fields: [title]
+    sections: [Definition, Explanation, Example]
+    required_fields: [title]
+  - type: Policy
+    directory: policies
+    identity_fields: [title, issuer]
+    sections: [Policy, Conditions, Exceptions]
+    required_fields: [title]
+  - type: Reward Rule
+    directory: reward-rules
+    identity_fields: [title, applies_to]
+    sections: [Rule, Conditions, Exclusions]
+    required_fields: [title]
+relationships:
+  - source_type: Credit Card
+    relation: has-fee
+    target_type: Fee
+  - source_type: Credit Card
+    relation: governed-by
+    target_type: Policy
+  - source_type: Credit Card
+    relation: has-eligibility-rule
+    target_type: Eligibility Rule
+  - source_type: Credit Card
+    relation: has-reward-rule
+    target_type: Reward Rule
+extraction:
+  minimum_confidence: 0.65
+  require_source_evidence: true
+  allow_inferred_relationships: false
+  maximum_concepts_per_source: 30
+  maximum_chunk_characters: 12000
+  maximum_source_excerpts: 8
+  request_timeout: 2m
+validation:
+  require_citations: true
+  reject_empty_documents: true

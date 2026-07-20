@@ -1,0 +1,14 @@
+{
+  "notice": "Demonstration data for Noli; not a real company policy.",
+  "policy": {
+    "name": "Demonstration return policy",
+    "summary": "A fictional Nimbus Hub may be returned within 30 days of the demonstration purchase record.",
+    "conditions": [
+      "A demonstration purchase record must be supplied.",
+      "The fictional product must be returned with its included accessories."
+    ],
+    "exceptions": [
+      "This example does not establish rights, warranties, or obligations."
+    ]
+  }
+}

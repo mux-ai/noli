@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "command": "generate",
+  "version": 1,
+  "data": {
+    "mode": "apply",
+    "preview_root": "",
+    "added": ["concepts/task-priority"],
+    "changed": ["concepts/todo-item"],
+    "removed": [],
+    "unchanged": ["concepts/task-status", "rules/complete-task"]
+  }
+}

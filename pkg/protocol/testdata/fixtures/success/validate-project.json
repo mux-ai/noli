@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "command": "validate",
+  "version": 1,
+  "data": {
+    "mode": "project",
+    "valid": true,
+    "errors": [],
+    "warnings": []
+  }
+}

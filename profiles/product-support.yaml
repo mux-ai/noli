@@ -1,0 +1,63 @@
+version: 1
+project:
+  name: Product support
+  description: Demonstration profile for organizing product-support reference material.
+  goal: Create reusable, source-grounded support knowledge.
+  hints:
+    - This bundled profile is demonstration data.
+okf:
+  title: Product Support Knowledge
+  description: Source-grounded product support concepts and procedures.
+  link_style: root-relative
+  safety_instructions:
+    - Do not claim a repair is safe unless the retrieved source explicitly supports it.
+concept_types:
+  - type: Error Code
+    directory: errors
+    identity_fields: [title, code]
+    sections: [Meaning, Symptoms, Resolution]
+    required_fields: [title]
+  - type: Policy
+    directory: policies
+    identity_fields: [title]
+    sections: [Policy, Conditions, Exceptions]
+    required_fields: [title]
+  - type: Procedure
+    directory: procedures
+    identity_fields: [title]
+    sections: [Prerequisites, Steps, Verification]
+    required_fields: [title]
+  - type: Product
+    directory: products
+    identity_fields: [title, model]
+    sections: [Overview, Features, Compatibility]
+    required_fields: [title]
+  - type: Troubleshooting Guide
+    directory: troubleshooting
+    identity_fields: [title, applies_to]
+    sections: [Symptoms, Cause, Resolution, Verification]
+    required_fields: [title]
+relationships:
+  - source_type: Error Code
+    relation: applies-to
+    target_type: Product
+  - source_type: Procedure
+    relation: applies-to
+    target_type: Product
+  - source_type: Troubleshooting Guide
+    relation: applies-to
+    target_type: Product
+  - source_type: Troubleshooting Guide
+    relation: resolves
+    target_type: Error Code
+extraction:
+  minimum_confidence: 0.55
+  require_source_evidence: true
+  allow_inferred_relationships: false
+  maximum_concepts_per_source: 30
+  maximum_chunk_characters: 12000
+  maximum_source_excerpts: 8
+  request_timeout: 2m
+validation:
+  require_citations: true
+  reject_empty_documents: true

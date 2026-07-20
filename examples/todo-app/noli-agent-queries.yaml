@@ -1,0 +1,15 @@
+version: 1
+queries:
+  - name: complete-todo
+    query: Implement the CompleteTodo use case
+    types: [Business Rule, Domain Entity, Application Component, Architecture Decision]
+    search_limit: 5
+    max_hops: 1
+    max_documents: 8
+    max_characters: 14000
+    direction: both
+  - name: create-task
+    query: Create a new task with a validated title
+    types: [Business Rule, Domain Entity, Application Component, Workflow]
+    max_documents: 8
+    max_characters: 14000

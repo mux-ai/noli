@@ -1,0 +1,10 @@
+{
+  "ok": false,
+  "command": "retrieve",
+  "version": 1,
+  "error": {
+    "code": "CONTEXT_LIMIT_TOO_SMALL",
+    "message": "--max-characters 10 cannot fit a single source header",
+    "details": {"max_characters": "10"}
+  }
+}

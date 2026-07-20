@@ -1,0 +1,10 @@
+{
+  "ok": false,
+  "command": "search",
+  "version": 1,
+  "error": {
+    "code": "INVALID_ARGUMENT",
+    "message": "flag --limit must be a non-negative integer",
+    "details": {"flag": "--limit"}
+  }
+}

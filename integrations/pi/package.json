@@ -1,0 +1,12 @@
+{
+  "name": "noli-pi-integration",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Your friendly knowledge-format builder.",
+  "scripts": {
+    "test": "npm run test:unit && npm run test:loader",
+    "test:unit": "node --experimental-strip-types extension.test.ts",
+    "test:loader": "node verify-pi-loader.mjs"
+  }
+}

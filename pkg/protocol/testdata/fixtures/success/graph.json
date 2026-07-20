@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "command": "graph",
+  "version": 1,
+  "data": {
+    "id": "rules/complete-task",
+    "direction": "both",
+    "max_hops": 1,
+    "nodes": [
+      {"id": "rules/complete-task", "distance": 0, "predecessor": "", "relationship": ""},
+      {"id": "concepts/task-status", "distance": 1, "predecessor": "rules/complete-task", "relationship": "links-to"},
+      {"id": "concepts/todo-item", "distance": 1, "predecessor": "rules/complete-task", "relationship": "applies-to"}
+    ],
+    "edges": [
+      {"from": "rules/complete-task", "to": "concepts/task-status", "predicate": "links-to"},
+      {"from": "rules/complete-task", "to": "concepts/todo-item", "predicate": "applies-to"}
+    ]
+  }
+}

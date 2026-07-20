@@ -1,0 +1,820 @@
+# Deterministic source for Noli's own OKF v0.1 knowledge bundle.
+# Edit this file, then run `noli generate --config noli.yaml --apply`.
+concepts:
+  - id: concepts/noli
+    type: Domain Entity
+    title: Noli
+    description: Your friendly knowledge-format builder.
+    tags: [product, knowledge, okf]
+    attributes:
+      executable: noli
+      format: Open Knowledge Format v0.1
+    sections:
+      - heading: Definition
+        content: >-
+          Noli is the user-facing product built in this repository. It helps
+          people and coding agents build, validate, query, and maintain local
+          Open Knowledge Format bundles through the `noli` executable. Legacy
+          `okf` entry points remain deprecated compatibility aliases.
+    relationships:
+      - predicate: uses
+        to: Noli CLI
+      - predicate: follows
+        to: Markdown and YAML Knowledge Storage
+
+  - id: concepts/knowledge-bundle
+    type: Domain Entity
+    title: Knowledge Bundle
+    description: A self-contained directory tree of OKF Markdown documents used as the unit of distribution and retrieval.
+    tags: [okf, bundle, markdown]
+    attributes:
+      spec_version: "0.1"
+    sections:
+      - heading: Definition
+        content: >-
+          The repository bundle lives under `knowledge/`. Concept documents
+          carry YAML frontmatter, while optional `index.md` and `log.md` files
+          provide progressive disclosure and history. The bundle is local,
+          diffable, portable, and consumable without a service.
+    relationships:
+      - predicate: uses
+        to: Concept Document
+      - predicate: uses
+        to: Knowledge Graph
+      - predicate: follows
+        to: OKF v0.1 Conformance
+
+  - id: concepts/concept-document
+    type: Domain Entity
+    title: Concept Document
+    description: One UTF-8 Markdown knowledge unit with YAML frontmatter and a structured body.
+    tags: [okf, markdown, frontmatter]
+    attributes:
+      required_frontmatter: [type]
+      recommended_frontmatter: [title, description, resource, tags, timestamp]
+    sections:
+      - heading: Definition
+        content: >-
+          Every non-reserved `.md` file is a concept. Its concept ID is its
+          bundle-relative path without `.md`. Unknown frontmatter fields are
+          producer extensions and must survive parser round trips.
+    relationships:
+      - predicate: applies-to
+        to: Knowledge Bundle
+      - predicate: follows
+        to: OKF v0.1 Conformance
+
+  - id: concepts/knowledge-graph
+    type: Domain Entity
+    title: Knowledge Graph
+    description: Directed relationships extracted from standard Markdown links between concept documents.
+    tags: [graph, links, retrieval]
+    sections:
+      - heading: Definition
+        content: >-
+          Bundle-relative and relative Markdown links become directed graph
+          edges. Ordinary prose produces `links-to`; five recognized
+          relationship phrases may be interpreted as typed predicates while
+          remaining valid, portable Markdown.
+    relationships:
+      - predicate: uses
+        to: Concept Document
+      - predicate: enforced-by
+        to: Typed Graph Engine
+      - predicate: follows
+        to: Typed Relationship Interpretation
+
+  - id: concepts/project-configuration
+    type: Domain Entity
+    title: Project Configuration
+    description: The strict repository-local noli.yaml policy used for generation, validation, retrieval defaults, and paths.
+    tags: [configuration, validation, generation]
+    attributes:
+      implementation_paths: [pkg/generator/config.go]
+    sections:
+      - heading: Definition
+        content: >-
+          `noli.yaml` selects the knowledge root, project concept taxonomy,
+          permitted relationship predicates, retrieval defaults, agent query
+          file, security exclusions, and deterministic concept sources. A
+          legacy `okf.yaml` is accepted only when `noli.yaml` is absent.
+          Unknown configuration fields are rejected.
+    relationships:
+      - predicate: applies-to
+        to: Knowledge Bundle
+      - predicate: enforced-by
+        to: Deterministic Knowledge Generator
+
+  - id: concepts/structured-concept-source
+    type: Domain Entity
+    title: Structured Concept Source
+    description: The deterministic YAML input from which generated concept Markdown and graph links are rendered.
+    tags: [yaml, generation, source-of-truth]
+    attributes:
+      implementation_paths: [.noli/concepts.yaml, pkg/generator/concept.go]
+    sections:
+      - heading: Definition
+        content: >-
+          `.noli/concepts.yaml` records concept identity, type, title,
+          description, producer metadata, sections, relationships, and
+          citations. It is the source of truth whenever `noli.yaml` has a
+          `generation` section.
+    relationships:
+      - predicate: applies-to
+        to: Concept Document
+      - predicate: enforced-by
+        to: Generated Knowledge Source of Truth
+      - predicate: uses
+        to: Deterministic Knowledge Generator
+
+  - id: concepts/prepared-agent-context
+    type: Domain Entity
+    title: Prepared Agent Context
+    description: A prebuilt bounded Markdown context plus a checksum manifest for an agent task.
+    tags: [agents, retrieval, manifest]
+    attributes:
+      implementation_paths: [pkg/retrieval/prepare.go]
+    sections:
+      - heading: Definition
+        content: >-
+          A prepared context directory contains one Markdown file per named
+          query and `manifest.json` with the source bundle ID, source concept
+          IDs, per-file SHA-256 checksums, bounds, and truncation state.
+    relationships:
+      - predicate: uses
+        to: Bounded Retrieval Engine
+      - predicate: enforced-by
+        to: Interprocess Target Lock
+
+  - id: components/noli-cli
+    type: Application Component
+    title: Noli CLI
+    description: The local noli executable that powers Noli for agents and developers, with okf retained as a deprecated alias.
+    tags: [cli, local-tools, json]
+    attributes:
+      implementation_paths: [cmd/noli, cmd/okf, internal/cli]
+      commands: [status, list, search, retrieve, get, graph, validate, generate, prepare-agent-context]
+    sections:
+      - heading: Responsibilities
+        content: >-
+          Parse bounded command arguments, call the public packages, emit one
+          versioned JSON envelope on stdout, keep successful stderr empty, and
+          map failures to stable error codes and documented exit statuses.
+    relationships:
+      - predicate: uses
+        to: Public Go SDK
+      - predicate: uses
+        to: Frozen JSON Protocol
+      - predicate: enforced-by
+        to: Frozen Protocol Compatibility
+      - predicate: follows
+        to: Local CLI Instead of a Service
+
+  - id: components/public-go-sdk
+    type: Application Component
+    title: Public Go SDK
+    description: The reusable Go facade for loading, querying, validating, and traversing OKF bundles.
+    tags: [go, sdk, api]
+    attributes:
+      implementation_paths: [pkg/okf]
+    sections:
+      - heading: Responsibilities
+        content: >-
+          Expose immutable `Store` operations for get, list, search, retrieve,
+          graph view, validation, and bundle identity without launching the
+          CLI or depending on a network service.
+    relationships:
+      - predicate: uses
+        to: OKF Parser and Store
+      - predicate: uses
+        to: Keyword Search Engine
+      - predicate: uses
+        to: Typed Graph Engine
+      - predicate: uses
+        to: Bounded Retrieval Engine
+
+  - id: components/parser-store
+    type: Application Component
+    title: OKF Parser and Store
+    description: The bounded parser and immutable in-memory representation of an OKF knowledge bundle.
+    tags: [parser, store, security]
+    attributes:
+      implementation_paths: [pkg/okf/parser.go, pkg/okf/store.go, pkg/okf/metadata.go]
+    sections:
+      - heading: Responsibilities
+        content: >-
+          Parse UTF-8 Markdown and YAML frontmatter, preserve unknown metadata,
+          enforce file and aggregate limits, exclude sensitive paths, extract
+          safe local links, and expose deep-copy accessors.
+    relationships:
+      - predicate: applies-to
+        to: Knowledge Bundle
+      - predicate: enforced-by
+        to: Repository Path Containment
+      - predicate: follows
+        to: OKF v0.1 Conformance
+
+  - id: components/keyword-search-engine
+    type: Application Component
+    title: Keyword Search Engine
+    description: Deterministic integer-scored keyword search over concept metadata and bodies.
+    tags: [search, ranking, deterministic]
+    attributes:
+      implementation_paths: [pkg/search]
+    sections:
+      - heading: Responsibilities
+        content: >-
+          Tokenize searchable records, score title, description, tag,
+          producer metadata, body, and phrase matches with fixed integer
+          weights, then sort by descending score and ascending concept ID.
+    relationships:
+      - predicate: applies-to
+        to: Concept Document
+      - predicate: uses
+        to: Bounded Retrieval Engine
+
+  - id: components/typed-graph-engine
+    type: Application Component
+    title: Typed Graph Engine
+    description: Cycle-safe directed graph traversal retaining distance, predecessor, relationship, and seed rank.
+    tags: [graph, traversal, relationships]
+    attributes:
+      implementation_paths: [pkg/graph]
+    sections:
+      - heading: Responsibilities
+        content: >-
+          Traverse outgoing, incoming, or both directions within document and
+          hop bounds. Preserve ranked seed order and deterministic graph-only
+          ordering without importing the OKF document package.
+    relationships:
+      - predicate: applies-to
+        to: Knowledge Graph
+      - predicate: follows
+        to: Typed Relationship Interpretation
+
+  - id: components/bounded-retrieval-engine
+    type: Application Component
+    title: Bounded Retrieval Engine
+    description: Source-traceable context assembly from ranked search seeds and their graph neighborhoods.
+    tags: [retrieval, context, bounds]
+    attributes:
+      implementation_paths: [pkg/retrieval]
+    sections:
+      - heading: Responsibilities
+        content: >-
+          Combine search seeds with bounded graph expansion, filter concept
+          types, deduplicate IDs, preserve deterministic order, truncate only
+          on UTF-8 rune boundaries, and report every selected source.
+    relationships:
+      - predicate: uses
+        to: Keyword Search Engine
+      - predicate: uses
+        to: Typed Graph Engine
+      - predicate: enforced-by
+        to: Bounded Deterministic Retrieval
+
+  - id: components/deterministic-generator
+    type: Application Component
+    title: Deterministic Knowledge Generator
+    description: The non-LLM renderer that converts structured concepts into a validated OKF bundle.
+    tags: [generation, deterministic, markdown]
+    attributes:
+      implementation_paths: [pkg/generator]
+    sections:
+      - heading: Responsibilities
+        content: >-
+          Resolve canonical concept IDs and relationships, render stable
+          frontmatter, Markdown sections, absolute bundle links, numbered
+          citations, and frontmatter-free indexes, then validate before an
+          atomic apply. Hand-authored conformant log files are preserved.
+    relationships:
+      - predicate: uses
+        to: Structured Concept Source
+      - predicate: enforced-by
+        to: Generated Knowledge Source of Truth
+      - predicate: enforced-by
+        to: Interprocess Target Lock
+      - predicate: follows
+        to: Markdown and YAML Knowledge Storage
+
+  - id: components/json-protocol
+    type: Application Component
+    title: Frozen JSON Protocol
+    description: Versioned deterministic success and error envelopes shared by all local agent integrations.
+    tags: [json, protocol, compatibility]
+    attributes:
+      implementation_paths: [pkg/protocol, docs/PROTOCOL.md]
+      version: 1
+    sections:
+      - heading: Responsibilities
+        content: >-
+          Define explicit response DTOs, non-null deterministic arrays,
+          stdout and stderr behavior, stable error codes, and command exit
+          mappings. Golden fixtures are checksum-locked.
+    relationships:
+      - predicate: applies-to
+        to: Noli CLI
+      - predicate: enforced-by
+        to: Frozen Protocol Compatibility
+
+  - id: components/interprocess-target-lock
+    type: Application Component
+    title: Interprocess Target Lock
+    description: A process-safe non-blocking lock preventing concurrent replacement of the same generated output.
+    tags: [concurrency, filesystem, locking]
+    attributes:
+      implementation_paths: [pkg/internal/targetlock]
+      linux_mechanism: flock
+      portable_fallback: atomic-directory
+    sections:
+      - heading: Responsibilities
+        content: >-
+          Serialize generation per project and prepared-context replacement
+          per output target. Linux uses kernel-released advisory locks; other
+          platforms fail closed with atomic lock directories.
+    relationships:
+      - predicate: enforced-by
+        to: Single Writer Per Target
+      - predicate: follows
+        to: Fail Fast on Writer Contention
+
+  - id: rules/okf-v0-1-conformance
+    type: Business Rule
+    title: OKF v0.1 Conformance
+    description: Standard validation accepts the permissive Open Knowledge Format v0.1 consumption model.
+    tags: [okf, specification, conformance]
+    attributes:
+      specification: Open Knowledge Format 0.1 Draft
+    sections:
+      - heading: Statement
+        content: >-
+          Every non-reserved Markdown concept must have parseable YAML
+          frontmatter and a non-empty `type`. `index.md` and `log.md` are
+          optional reserved files. Standard consumers must tolerate unknown
+          types and metadata, broken cross-links, and missing indexes; these
+          are warnings rather than rejection conditions.
+      - heading: Producer Guidance
+        content: >-
+          Generated concept links use absolute bundle-relative Markdown.
+          Indexes have no frontmatter and enumerate entries under headings.
+          Citations use a final numbered `Citations` section when claims rely
+          on external material.
+    relationships:
+      - predicate: applies-to
+        to: Knowledge Bundle
+      - predicate: enforced-by
+        to: OKF Parser and Store
+      - predicate: enforced-by
+        to: Deterministic Knowledge Generator
+    citations:
+      - source: Open Knowledge Format v0.1 specification
+        uri: https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md
+        evidence: Defines bundle structure, frontmatter, links, indexes, logs, citations, and conformance.
+
+  - id: rules/bounded-deterministic-retrieval
+    type: Business Rule
+    title: Bounded Deterministic Retrieval
+    description: Retrieval must be reproducible, size-bounded, UTF-8 safe, and traceable to selected concepts.
+    tags: [retrieval, determinism, safety]
+    sections:
+      - heading: Statement
+        content: >-
+          The same bundle, query, and options must produce byte-identical JSON.
+          Search, graph hops, document count, and context characters are
+          bounded. Context sections are added whole where possible, and any
+          truncation occurs only on rune boundaries with accurate statistics.
+    relationships:
+      - predicate: applies-to
+        to: Bounded Retrieval Engine
+      - predicate: uses
+        to: Knowledge Graph
+
+  - id: rules/repository-path-containment
+    type: Business Rule
+    title: Repository Path Containment
+    description: Local tools must not read, write, or execute through paths that escape the configured repository.
+    tags: [security, paths, containment]
+    sections:
+      - heading: Statement
+        content: >-
+          Resolve real paths, reject traversal and symlink escapes, disallow
+          NUL and unsafe path components, and exclude sensitive directories
+          such as `.git`, credentials, secrets, dependencies, and build output.
+    relationships:
+      - predicate: applies-to
+        to: OKF Parser and Store
+      - predicate: applies-to
+        to: Deterministic Knowledge Generator
+      - predicate: applies-to
+        to: Pi Coding Agent Integration
+
+  - id: rules/frozen-protocol-compatibility
+    type: Business Rule
+    title: Frozen Protocol Compatibility
+    description: Agent-visible JSON shapes, error codes, and exit mappings change only through an explicit contract update.
+    tags: [protocol, compatibility, fixtures]
+    sections:
+      - heading: Statement
+        content: >-
+          Every command emits protocol version 1 with one JSON line on stdout.
+          Success leaves stderr empty. Golden fixtures and their checksum lock
+          must pass before a protocol change is accepted.
+    relationships:
+      - predicate: applies-to
+        to: Frozen JSON Protocol
+      - predicate: enforced-by
+        to: Run Acceptance Gates
+
+  - id: rules/noli-namespace-compatibility
+    type: Business Rule
+    title: Noli Namespace Compatibility
+    description: Noli owns the primary product namespace while legacy OKF product identifiers remain bounded deprecated aliases.
+    tags: [namespace, compatibility, migration, noli]
+    sections:
+      - heading: Statement
+        content: >-
+          New projects and documentation use `noli`, `noli.yaml`, `.noli/`,
+          `noli-agent-queries.yaml`, `NOLI_BINARY_PATH`, `/noli-context`, and
+          the five `noli_*` Pi tool IDs. During migration, the executable,
+          configuration loader, disabled sentinel, environment resolver, and
+          agent integrations may accept their former `okf` names only as
+          deprecated fallbacks. When both names exist, the Noli name wins.
+          OKF remains the correct name for the Open Knowledge Format standard,
+          its bundles, conformance rules, and parser/SDK types.
+    relationships:
+      - predicate: applies-to
+        to: Noli
+      - predicate: applies-to
+        to: Noli CLI
+      - predicate: applies-to
+        to: Claude Code Integration
+      - predicate: applies-to
+        to: Codex Integration
+      - predicate: applies-to
+        to: Pi Coding Agent Integration
+      - predicate: enforced-by
+        to: Run Acceptance Gates
+
+  - id: rules/codex-global-first-run-choice
+    type: Business Rule
+    title: Codex Global First-Run Choice
+    description: User-global Codex guidance asks once before enabling Noli in a repository that has no recorded Noli state.
+    tags: [codex, agents, global, bootstrap, consent]
+    sections:
+      - heading: Statement
+        content: >-
+          Global installation places the shared skill under
+          `$HOME/.agents/skills` and adds managed guidance to the active
+          global Codex instruction file. A repository with `noli.yaml` or
+          `knowledge/` is enabled without a question; `.noli/disabled` records
+          an opt-out. When neither state exists, Codex asks once whether to
+          initialize Noli before implementation. Existing global instructions
+          must be preserved and repeated installation must not duplicate the
+          managed guidance block.
+    relationships:
+      - predicate: applies-to
+        to: Codex Integration
+      - predicate: enforced-by
+        to: Run Acceptance Gates
+      - predicate: follows
+        to: Bootstrap Repository Knowledge
+
+  - id: rules/single-writer-per-target
+    type: Business Rule
+    title: Single Writer Per Target
+    description: At most one process may replace a project bundle or prepared-context output at a time.
+    tags: [concurrency, writes, atomicity]
+    sections:
+      - heading: Statement
+        content: >-
+          A writer must acquire the target lock before reading generation
+          inputs or replacing output. Contenders fail safely with
+          `GENERATION_FAILED` and may retry. Each attempt owns unique staging
+          and backup paths, and rollback preserves the last active tree.
+    relationships:
+      - predicate: applies-to
+        to: Deterministic Knowledge Generator
+      - predicate: applies-to
+        to: Prepared Agent Context
+      - predicate: enforced-by
+        to: Interprocess Target Lock
+
+  - id: rules/generated-knowledge-source-of-truth
+    type: Business Rule
+    title: Generated Knowledge Source of Truth
+    description: When generation is configured, agents edit structured concepts rather than generated Markdown.
+    tags: [generation, source-of-truth, agents]
+    sections:
+      - heading: Statement
+        content: >-
+          Change `.noli/concepts.yaml`, preview the deterministic diff, apply,
+          and validate. Do not hand-edit generated concept documents because a
+          later apply will replace them. Optional hand-authored `log.md` files
+          are the reserved exception and survive generation.
+    relationships:
+      - predicate: applies-to
+        to: Structured Concept Source
+      - predicate: enforced-by
+        to: Update and Regenerate Knowledge
+
+  - id: workflows/bootstrap-repository-knowledge
+    type: Workflow
+    title: Bootstrap Repository Knowledge
+    description: Initialize a repository-local, spec-compatible OKF knowledge bundle from structured concepts.
+    tags: [bootstrap, generation, validation]
+    sections:
+      - heading: Steps
+        content: |-
+          1. Create `noli.yaml` and `.noli/concepts.yaml`.
+          2. Run `noli generate --config noli.yaml --dry-run` and inspect the diff.
+          3. Run `noli generate --config noli.yaml --apply`.
+          4. Run both standard and project validation.
+          5. Exercise a representative retrieval query and inspect its sources.
+    relationships:
+      - predicate: uses
+        to: Project Configuration
+      - predicate: uses
+        to: Structured Concept Source
+      - predicate: uses
+        to: Deterministic Knowledge Generator
+      - predicate: follows
+        to: OKF v0.1 Conformance
+
+  - id: workflows/retrieve-before-coding
+    type: Workflow
+    title: Retrieve Knowledge Before Coding
+    description: Ground an implementation task in bounded project knowledge before editing code.
+    tags: [agents, retrieval, implementation]
+    sections:
+      - heading: Steps
+        content: |-
+          1. Describe the concrete coding task as the retrieval query.
+          2. Run `noli retrieve` with explicit graph and context bounds.
+          3. Read `data.context` and verify `data.sources`.
+          4. Treat retrieved business rules and architecture decisions as constraints.
+          5. Re-query after the task reveals a more precise concept or component.
+    relationships:
+      - predicate: uses
+        to: Noli CLI
+      - predicate: uses
+        to: Bounded Retrieval Engine
+      - predicate: enforced-by
+        to: Bounded Deterministic Retrieval
+
+  - id: workflows/update-and-regenerate-knowledge
+    type: Workflow
+    title: Update and Regenerate Knowledge
+    description: Keep the structured concept source, generated graph, and implementation decisions synchronized.
+    tags: [maintenance, generation, validation]
+    sections:
+      - heading: Steps
+        content: |-
+          1. Add or revise concepts, sections, metadata, and relationships in `.noli/concepts.yaml`.
+          2. Run a dry-run and review added, changed, and removed concept IDs.
+          3. Apply the bundle under the project write lock.
+          4. Validate in project mode.
+          5. Retrieve the changed topic and verify the expected graph neighborhood.
+    relationships:
+      - predicate: uses
+        to: Deterministic Knowledge Generator
+      - predicate: uses
+        to: Interprocess Target Lock
+      - predicate: enforced-by
+        to: Generated Knowledge Source of Truth
+
+  - id: workflows/prepare-agent-context
+    type: Workflow
+    title: Prepare Agent Context
+    description: Materialize named retrieval queries into reproducible context files before an agent session.
+    tags: [agents, context, manifest]
+    sections:
+      - heading: Steps
+        content: |-
+          1. Define bounded named queries in `noli-agent-queries.yaml`.
+          2. Run `noli prepare-agent-context` outside the knowledge root.
+          3. Verify `manifest.json` bundle ID and file checksums.
+          4. Point an agent at the named Markdown context.
+          5. Rebuild when the source bundle ID changes.
+    relationships:
+      - predicate: uses
+        to: Prepared Agent Context
+      - predicate: uses
+        to: Bounded Retrieval Engine
+      - predicate: enforced-by
+        to: Single Writer Per Target
+
+  - id: workflows/three-agent-collaboration
+    type: Workflow
+    title: Collaborate with Three Code Agents
+    description: Let Claude Code, Codex, and Pi share deterministic knowledge without allowing output write collisions.
+    tags: [agents, claude, codex, pi, concurrency]
+    sections:
+      - heading: Steps
+        content: |-
+          1. Start every agent at the same repository root and knowledge bundle.
+          2. Let read-only status, search, retrieve, get, and graph calls run concurrently.
+          3. Assign ownership before agents edit the structured concept source.
+          4. Allow only the process holding the target lock to generate or prepare a shared output.
+          5. Retry a losing writer after `GENERATION_FAILED`, then validate and retrieve again.
+    relationships:
+      - predicate: uses
+        to: Claude Code Integration
+      - predicate: uses
+        to: Codex Integration
+      - predicate: uses
+        to: Pi Coding Agent Integration
+      - predicate: enforced-by
+        to: Single Writer Per Target
+
+  - id: workflows/run-acceptance-gates
+    type: Workflow
+    title: Run Acceptance Gates
+    description: Verify implementation, conformance, protocol, integrations, race safety, and deterministic behavior before completion.
+    tags: [testing, acceptance, race]
+    attributes:
+      implementation_paths: [scripts/gate.sh]
+    sections:
+      - heading: Steps
+        content: |-
+          1. Run focused tests for changed packages.
+          2. Run `scripts/gate.sh` for tests, vet, builds, dependency rules, fixtures, and Pi loader checks.
+          3. Run the race detector and contention tests for write-path changes.
+          4. Validate the repository knowledge bundle in standard and project modes.
+          5. Exercise representative retrieval and inspect source IDs.
+    relationships:
+      - predicate: uses
+        to: Frozen JSON Protocol
+      - predicate: uses
+        to: Knowledge Bundle
+
+  - id: decisions/local-cli-over-service
+    type: Architecture Decision
+    title: Local CLI Instead of a Service
+    description: Coding agents access project knowledge through one local binary rather than MCP, HTTP, or a background daemon.
+    tags: [architecture, local-first, cli]
+    sections:
+      - heading: Decision
+        content: >-
+          Keep the agent runtime local and process-scoped: no MCP server, no
+          network transport, no vector database, and no background process.
+          Thin integrations spawn the fixed `noli` executable with argument
+          arrays and consume the frozen JSON protocol. The `okf` executable is
+          retained only as a deprecated compatibility alias.
+      - heading: Consequences
+        content: >-
+          Installation and debugging stay simple, all agents receive the same
+          deterministic behavior, and repository containment can be enforced
+          without opening a service boundary.
+    relationships:
+      - predicate: applies-to
+        to: Noli CLI
+      - predicate: applies-to
+        to: Claude Code Integration
+      - predicate: applies-to
+        to: Codex Integration
+      - predicate: applies-to
+        to: Pi Coding Agent Integration
+
+  - id: decisions/markdown-yaml-storage
+    type: Architecture Decision
+    title: Markdown and YAML Knowledge Storage
+    description: Store portable knowledge as Markdown concepts with YAML frontmatter following OKF v0.1.
+    tags: [architecture, markdown, yaml, okf]
+    sections:
+      - heading: Decision
+        content: >-
+          Use the minimal OKF directory format so knowledge remains readable,
+          parseable, diffable, and portable across agents. Apply stricter
+          project taxonomy only as an opt-in policy layered over standard
+          conformance.
+    relationships:
+      - predicate: applies-to
+        to: Knowledge Bundle
+      - predicate: follows
+        to: OKF v0.1 Conformance
+    citations:
+      - source: Open Knowledge Format v0.1 specification
+        uri: https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md
+        evidence: Defines the minimal Markdown and YAML bundle format and its portability goals.
+
+  - id: decisions/typed-relationship-interpretation
+    type: Architecture Decision
+    title: Typed Relationship Interpretation
+    description: Interpret a small deterministic set of relationship phrases while keeping documents valid untyped OKF Markdown.
+    tags: [architecture, graph, extension]
+    sections:
+      - heading: Decision
+        content: >-
+          Recognize only `Applies to`, `Enforced by`, `Depends on`, `Uses`,
+          and `Follows` on relationship list items. Preserve all other links as
+          `links-to`; never guess semantic predicates from arbitrary prose.
+    relationships:
+      - predicate: applies-to
+        to: Knowledge Graph
+      - predicate: enforced-by
+        to: Typed Graph Engine
+
+  - id: decisions/fail-fast-writer-contention
+    type: Architecture Decision
+    title: Fail Fast on Writer Contention
+    description: A competing process receives a retryable generation failure instead of waiting indefinitely or racing filesystem replacement.
+    tags: [architecture, concurrency, locks]
+    sections:
+      - heading: Decision
+        content: >-
+          Acquire target locks non-blockingly. The lock winner completes its
+          validated atomic replacement; every contender returns exit 5 with
+          `GENERATION_FAILED`, leaves active output untouched, and may retry.
+    relationships:
+      - predicate: applies-to
+        to: Interprocess Target Lock
+      - predicate: enforced-by
+        to: Single Writer Per Target
+
+  - id: decisions/native-pi-extension
+    type: Architecture Decision
+    title: Native Pi Tool Extension
+    description: Expose OKF read operations as native Pi tools through the installed Pi extension API.
+    tags: [architecture, pi, integration]
+    sections:
+      - heading: Decision
+        content: >-
+          Register exactly five read-only tools with Pi's default extension
+          factory. Resolve the executable and repository from host context,
+          pass cancellation to the child process, and validate the adapter
+          against the actual installed Pi loader.
+    relationships:
+      - predicate: applies-to
+        to: Pi Coding Agent Integration
+      - predicate: follows
+        to: Local CLI Instead of a Service
+
+  - id: integrations/claude-code
+    type: Agent Integration
+    title: Claude Code Integration
+    description: Repository guidance and a noli-context slash command for retrieving bounded project knowledge in Claude Code.
+    tags: [claude, agents, integration]
+    attributes:
+      implementation_paths: [integrations/claude]
+    sections:
+      - heading: Usage
+        content: >-
+          Install `CLAUDE.md`, the `/noli-context` command, and the shared Noli
+          skill into the target repository. Claude invokes the local CLI and
+          grounds answers in returned source concept IDs.
+    relationships:
+      - predicate: uses
+        to: Noli CLI
+      - predicate: follows
+        to: Retrieve Knowledge Before Coding
+
+  - id: integrations/codex
+    type: Agent Integration
+    title: Codex Integration
+    description: Project-local or user-global guidance and a shared skill that make Codex resolve Noli state and retrieve project knowledge before implementation.
+    tags: [codex, agents, integration]
+    attributes:
+      implementation_paths: [integrations/codex]
+    sections:
+      - heading: Usage
+        content: >-
+          Run the Codex installer against one repository for checked-in
+          guidance, or pass `--global` to install the skill and managed
+          first-run guidance for the current user across repositories. Global
+          installation preserves existing Codex instructions and asks once in
+          each repository that has neither an enabled nor disabled Noli state.
+          Codex uses the same bounded local CLI operations in both modes.
+    relationships:
+      - predicate: uses
+        to: Noli CLI
+      - predicate: follows
+        to: Retrieve Knowledge Before Coding
+      - predicate: enforced-by
+        to: Codex Global First-Run Choice
+
+  - id: integrations/pi-coding-agent
+    type: Agent Integration
+    title: Pi Coding Agent Integration
+    description: A project-local TypeScript extension exposing five bounded native Noli read tools to Pi.
+    tags: [pi, agents, integration, typescript]
+    attributes:
+      implementation_paths: [integrations/pi]
+      tools: [noli_status, noli_search, noli_retrieve, noli_get, noli_graph]
+      verified_api: "0.78"
+    sections:
+      - heading: Usage
+        content: >-
+          Run `integrations/pi/install.sh` for the target repository, ensure
+          `noli` is on PATH or set an absolute `NOLI_BINARY_PATH`, then start Pi
+          from the repository. The extension rejects shell execution, path
+          escapes, invalid protocol output, timeout, cancellation, and output
+          overflow.
+    relationships:
+      - predicate: uses
+        to: Noli CLI
+      - predicate: uses
+        to: Frozen JSON Protocol
+      - predicate: enforced-by
+        to: Repository Path Containment
+      - predicate: follows
+        to: Native Pi Tool Extension

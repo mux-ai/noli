@@ -1,0 +1,28 @@
+{
+  "ok": true,
+  "command": "validate",
+  "version": 1,
+  "data": {
+    "mode": "standard",
+    "valid": false,
+    "errors": [
+      {
+        "code": "MISSING_TYPE",
+        "document": "concepts/untyped",
+        "message": "concept document frontmatter requires a non-empty type"
+      }
+    ],
+    "warnings": [
+      {
+        "code": "BROKEN_LINK",
+        "document": "rules/complete-task",
+        "message": "link target \"concepts/missing\" does not exist"
+      },
+      {
+        "code": "MISSING_INDEX",
+        "document": "workflows/index",
+        "message": "concept directory has no index.md"
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "ok": false,
+  "command": "list",
+  "version": 1,
+  "error": {
+    "code": "PARSE_ERROR",
+    "message": "concepts/todo-item.md: frontmatter block is not terminated",
+    "details": {"document": "concepts/todo-item"}
+  }
+}
