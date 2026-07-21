@@ -11,6 +11,8 @@ mkdir -p "$PROJECT"
 sh "$INSTALLER" "$PROJECT" >/dev/null 2>&1
 cmp "$ROOT/integrations/pi/extension.ts" "$PROJECT/.pi/extensions/noli/index.ts"
 cmp "$ROOT/integrations/pi/runner.ts" "$PROJECT/.pi/extensions/noli/runner.ts"
+cmp "$ROOT/integrations/shared/noli-starter.yaml" "$PROJECT/.pi/extensions/noli/noli-starter.yaml"
+cmp "$ROOT/integrations/shared/noli-starter-concepts.yaml" "$PROJECT/.pi/extensions/noli/noli-starter-concepts.yaml"
 cmp "$ROOT/integrations/shared/SKILL.md" "$PROJECT/.agents/skills/noli-project-knowledge/SKILL.md"
 
 TEST_HOME="$TEST_ROOT/home"
@@ -23,6 +25,8 @@ HOME="$TEST_HOME" PI_CODING_AGENT_DIR="$TEST_PI_HOME" NOLI_AGENT_SKILLS_DIR="$TE
     sh "$INSTALLER" --global >/dev/null
 cmp "$ROOT/integrations/pi/extension.ts" "$TEST_PI_HOME/extensions/noli/index.ts"
 cmp "$ROOT/integrations/pi/runner.ts" "$TEST_PI_HOME/extensions/noli/runner.ts"
+cmp "$ROOT/integrations/shared/noli-starter.yaml" "$TEST_PI_HOME/extensions/noli/noli-starter.yaml"
+cmp "$ROOT/integrations/shared/noli-starter-concepts.yaml" "$TEST_PI_HOME/extensions/noli/noli-starter-concepts.yaml"
 cmp "$ROOT/integrations/shared/SKILL.md" "$TEST_SKILLS/noli-project-knowledge/SKILL.md"
 grep -qF '# Existing Pi guidance' "$TEST_PI_HOME/AGENTS.md"
 test "$(grep -cF '<!-- noli-global-guidance:start -->' "$TEST_PI_HOME/AGENTS.md")" -eq 1

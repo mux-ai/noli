@@ -342,3 +342,162 @@ test("tool execution runs against the real noli binary when available", async (t
   assert.equal(retrieved.sources[0].id, "rules/complete-task");
   assert.equal(retrieved.sources[0].seed, true);
 });
+
+// ---- First-run session-start flow ----------------------------------------
+
+import {
+  FIRST_RUN_NO,
+  FIRST_RUN_QUESTION,
+  FIRST_RUN_YES,
+  resolveNoliState,
+  runSessionStart,
+  type PiSessionContext,
+  type PiSessionStartEvent,
+} from "./extension.ts";
+import { readFileSync, rmSync } from "node:fs";
+
+const START: PiSessionStartEvent = { type: "session_start", reason: "startup" };
+
+interface FirstRunFixture {
+  context: PiSessionContext;
+  notifications: Array<{ message: string; type: string | undefined }>;
+  selectCalls: () => number;
+}
+
+function firstRunFixture(cwd: string, answer: string | undefined): FirstRunFixture {
+  const notifications: Array<{ message: string; type: string | undefined }> = [];
+  let calls = 0;
+  return {
+    context: {
+      cwd,
+      hasUI: true,
+      ui: {
+        select: async (title: string) => {
+          assert.equal(title, FIRST_RUN_QUESTION);
+          calls += 1;
+          return answer;
+        },
+        notify: (message: string, type?: "info" | "warning" | "error") => {
+          notifications.push({ message, type });
+        },
+      },
+    },
+    notifications,
+    selectCalls: () => calls,
+  };
+}
+
+function undecidedRepository(): string {
+  return mkdtempSync(path.join(tmpdir(), "noli-first-run-"));
+}
+
+test("resolveNoliState follows the first-run decision rules", () => {
+  const dir = undecidedRepository();
+  assert.equal(resolveNoliState(dir), "undecided");
+  writeFileSync(path.join(dir, "okf.yaml"), "version: 1\n");
+  assert.equal(resolveNoliState(dir), "enabled"); // legacy fallback
+  mkdirSync(path.join(dir, ".noli"), { recursive: true });
+  writeFileSync(path.join(dir, ".noli", "disabled"), "developer opted out\n");
+  assert.equal(resolveNoliState(dir), "disabled"); // Noli sentinel beats legacy enable
+  writeFileSync(path.join(dir, "noli.yaml"), "version: 1\n");
+  assert.equal(resolveNoliState(dir), "enabled"); // enabled wins over disabled sentinel
+  rmSync(path.join(dir, "noli.yaml"));
+  rmSync(path.join(dir, ".noli"), { recursive: true });
+  rmSync(path.join(dir, "okf.yaml"));
+  mkdirSync(path.join(dir, "knowledge"));
+  assert.equal(resolveNoliState(dir), "enabled");
+});
+
+test("session start skips non-startup reasons, missing UI, and decided repositories", async () => {
+  const binaryPath = path.resolve(import.meta.dirname, "..", "..", "bin", "noli");
+  for (const reason of ["reload", "resume", "fork"] as const) {
+    const f = firstRunFixture(undecidedRepository(), FIRST_RUN_YES);
+    await runSessionStart({ type: "session_start", reason }, f.context, { binaryPath });
+    assert.equal(f.selectCalls(), 0);
+  }
+  const noUI = firstRunFixture(undecidedRepository(), FIRST_RUN_YES);
+  noUI.context.hasUI = false;
+  await runSessionStart(START, noUI.context, { binaryPath });
+  assert.equal(noUI.selectCalls(), 0);
+
+  const enabled = undecidedRepository();
+  writeFileSync(path.join(enabled, "noli.yaml"), "version: 1\n");
+  const enabledFixture = firstRunFixture(enabled, FIRST_RUN_YES);
+  await runSessionStart(START, enabledFixture.context, { binaryPath });
+  assert.equal(enabledFixture.selectCalls(), 0);
+
+  const disabled = undecidedRepository();
+  mkdirSync(path.join(disabled, ".noli"), { recursive: true });
+  writeFileSync(path.join(disabled, ".noli", "disabled"), "developer opted out\n");
+  const disabledFixture = firstRunFixture(disabled, FIRST_RUN_YES);
+  await runSessionStart(START, disabledFixture.context, { binaryPath });
+  assert.equal(disabledFixture.selectCalls(), 0);
+});
+
+test("answering No writes the opt-out sentinel", async () => {
+  const dir = undecidedRepository();
+  const f = firstRunFixture(dir, FIRST_RUN_NO);
+  await runSessionStart(START, f.context, { binaryPath: "/usr/bin/false" });
+  assert.equal(f.selectCalls(), 1);
+  assert.equal(readFileSync(path.join(dir, ".noli", "disabled"), "utf8"), "developer opted out\n");
+  assert.equal(resolveNoliState(dir), "disabled");
+  assert.equal(f.notifications.length, 1);
+  assert.equal(f.notifications[0].type, "info");
+});
+
+test("dismissing the dialog records nothing and asks again next time", async () => {
+  const dir = undecidedRepository();
+  const f = firstRunFixture(dir, undefined);
+  await runSessionStart(START, f.context, { binaryPath: "/usr/bin/false" });
+  assert.equal(f.selectCalls(), 1);
+  assert.equal(resolveNoliState(dir), "undecided");
+  assert.deepEqual(f.notifications, []);
+});
+
+test("a missing noli executable warns without showing the dialog", async () => {
+  const dir = undecidedRepository();
+  const f = firstRunFixture(dir, FIRST_RUN_YES);
+  const previous = process.env.NOLI_BINARY_PATH;
+  process.env.NOLI_BINARY_PATH = "relative/never-valid";
+  try {
+    await runSessionStart(START, f.context);
+  } finally {
+    if (previous === undefined) delete process.env.NOLI_BINARY_PATH;
+    else process.env.NOLI_BINARY_PATH = previous;
+  }
+  assert.equal(f.selectCalls(), 0);
+  assert.equal(f.notifications.length, 1);
+  assert.equal(f.notifications[0].type, "warning");
+});
+
+test("answering Yes bootstraps, generates, and validates a knowledge base", async (t) => {
+  const binaryPath = path.resolve(import.meta.dirname, "..", "..", "bin", "noli");
+  if (!existsSync(binaryPath)) {
+    t.skip("bin/noli not built");
+    return;
+  }
+  const dir = undecidedRepository();
+  const f = firstRunFixture(dir, FIRST_RUN_YES);
+  await runSessionStart(START, f.context, { binaryPath });
+  assert.equal(f.selectCalls(), 1);
+  assert.match(readFileSync(path.join(dir, "noli.yaml"), "utf8"), /^ {2}name: "/m);
+  assert.ok(existsSync(path.join(dir, ".noli", "concepts.yaml")));
+  assert.ok(existsSync(path.join(dir, "knowledge", "index.md")));
+  assert.equal(resolveNoliState(dir), "enabled");
+  assert.equal(f.notifications.length, 1);
+  assert.equal(f.notifications[0].type, "info");
+  assert.match(f.notifications[0].message, /initialized/);
+});
+
+test("a failing bootstrap surfaces as an error notification, never a rejection", async () => {
+  const f = fixture();
+  const failing = f.binary(
+    `printf '%s\\n' '{"ok":false,"command":"generate","version":1,"error":{"code":"GENERATION_FAILED","message":"boom"}}'`,
+  );
+  const dir = undecidedRepository();
+  const run = firstRunFixture(dir, FIRST_RUN_YES);
+  await runSessionStart(START, run.context, { binaryPath: failing });
+  assert.equal(run.notifications.length, 1);
+  assert.equal(run.notifications[0].type, "error");
+  assert.match(run.notifications[0].message, /boom/);
+});

@@ -29,6 +29,14 @@ uninstall_global() {
         "$PI_AGENT_DIRECTORY/extensions/noli/runner.ts" \
         "$SOURCE/runner.ts" \
         "global Noli Pi runner"
+    noli_remove_managed_file \
+        "$PI_AGENT_DIRECTORY/extensions/noli/noli-starter.yaml" \
+        "$SOURCE/../shared/noli-starter.yaml" \
+        "global Noli Pi starter config"
+    noli_remove_managed_file \
+        "$PI_AGENT_DIRECTORY/extensions/noli/noli-starter-concepts.yaml" \
+        "$SOURCE/../shared/noli-starter-concepts.yaml" \
+        "global Noli Pi starter concepts"
     rmdir "$PI_AGENT_DIRECTORY/extensions/noli" 2>/dev/null || true
     rmdir "$PI_AGENT_DIRECTORY/extensions" 2>/dev/null || true
 

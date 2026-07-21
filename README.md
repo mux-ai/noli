@@ -240,11 +240,19 @@ Thin local CLI wrappers only — no services:
 - `integrations/codex/` — AGENTS.md plus `install.sh` to copy guidance into
   a repository.
 - `integrations/claude/` — CLAUDE.md plus a `/noli-context` command.
-- `integrations/pi/` — verified Pi 0.78 TypeScript adapter and installer:
+- `integrations/pi/` — verified Pi 0.80 TypeScript adapter and installer:
   `spawn` with `shell: false`,
   five allowlisted read operations, repository containment with symlink
   resolution, bounded streamed output, immediate kill on timeout or
   overflow. `npm --prefix integrations/pi test`.
+
+  The extension also handles the first run: on `session_start` in a
+  repository with no Noli state it shows one Yes/No dialog (Yes bootstraps
+  a starter knowledge base with `generate --apply` + `validate`; No writes
+  `.noli/disabled`; dismissing asks again next session). The handler never
+  awaits — Pi awaits `session_start` during startup, so the dialog runs as
+  a detached promise and decided repositories cost four `existsSync` calls.
+  Skipped entirely in non-interactive modes (`hasUI` false).
 
 ## Knowledge generation
 

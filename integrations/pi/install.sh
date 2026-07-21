@@ -17,6 +17,10 @@ install_extension() {
     mkdir -p "$PI_EXTENSION_DESTINATION"
     cp "$SOURCE/extension.ts" "$PI_EXTENSION_DESTINATION/index.ts"
     cp "$SOURCE/runner.ts" "$PI_EXTENSION_DESTINATION/runner.ts"
+    # Starter templates travel with the extension so the session-start
+    # bootstrap works in repositories without a project-local skill.
+    cp "$SOURCE/../shared/noli-starter.yaml" "$PI_EXTENSION_DESTINATION/noli-starter.yaml"
+    cp "$SOURCE/../shared/noli-starter-concepts.yaml" "$PI_EXTENSION_DESTINATION/noli-starter-concepts.yaml"
 }
 
 install_skill() {

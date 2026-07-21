@@ -3,8 +3,18 @@
 // The shapes below follow Pi 0.78's ExtensionAPI/ToolDefinition contract while
 // remaining structural, so this adapter does not need to bundle Pi itself.
 // Pi's loader supplies the ExtensionAPI and validates the JSON schemas.
-import { accessSync, constants, existsSync, realpathSync } from "node:fs";
+import { spawn } from "node:child_process";
+import {
+  accessSync,
+  constants,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { NoliError, runNoli, type NoliRequest, type Operation, type RunnerOptions } from "./runner.ts";
 
@@ -33,9 +43,32 @@ export interface NoliToolDefinition {
   ): Promise<PiToolResult>;
 }
 
+/** Fired by Pi when a session is started, loaded, or reloaded. */
+export interface PiSessionStartEvent {
+  type: "session_start";
+  reason: "startup" | "reload" | "new" | "resume" | "fork";
+}
+
+/** The dialog and notification subset of Pi's extension UI context. */
+export interface PiSessionUI {
+  select(title: string, options: string[]): Promise<string | undefined>;
+  notify(message: string, type?: "info" | "warning" | "error"): void;
+}
+
+/** The verified subset of Pi's event handler context. */
+export interface PiSessionContext {
+  cwd: string;
+  hasUI: boolean;
+  ui: PiSessionUI;
+}
+
 /** The verified subset of Pi's ExtensionAPI used by this extension. */
 export interface PiExtensionAPI {
   registerTool(tool: NoliToolDefinition): void;
+  on?(
+    event: "session_start",
+    handler: (event: PiSessionStartEvent, ctx: PiSessionContext) => void,
+  ): void;
 }
 
 interface ToolSpec {
@@ -256,6 +289,235 @@ function configuredRepository(cwd: string): string {
   }
 }
 
+// ---- First-run choice on session start ----------------------------------
+//
+// Implements rules/agent-global-first-run-choice at the Pi UI layer: in a
+// repository with no Noli state, ask the developer exactly one Yes/No
+// question at startup. The session_start handler itself never awaits — Pi
+// awaits session_start handlers during initialization, so the dialog and
+// the bootstrap run as a detached promise while startup completes.
+
+/** Repository Noli state per rules/agent-global-first-run-choice. */
+export type NoliState = "enabled" | "disabled" | "undecided";
+
+export const FIRST_RUN_QUESTION =
+  "This project has Noli installed but no project knowledge base yet. " +
+  "Initialize one so I can retrieve grounded project knowledge?";
+export const FIRST_RUN_YES = "Yes — initialize a knowledge base";
+export const FIRST_RUN_NO = "No — disable Noli for this repository";
+
+/** Options for tests and embedders; production uses the defaults. */
+export interface FirstRunOptions {
+  binaryPath?: string;
+  starterConfigPath?: string;
+  starterConceptsPath?: string;
+  timeoutMs?: number;
+}
+
+/**
+ * Resolves the repository's Noli state. The Noli namespace always wins;
+ * the former OKF names are deprecated migration fallbacks only.
+ */
+export function resolveNoliState(directory: string): NoliState {
+  if (
+    existsSync(path.join(directory, "noli.yaml")) ||
+    existsSync(path.join(directory, "knowledge"))
+  ) {
+    return "enabled";
+  }
+  if (existsSync(path.join(directory, ".noli", "disabled"))) {
+    return "disabled";
+  }
+  if (existsSync(path.join(directory, "okf.yaml"))) {
+    return "enabled";
+  }
+  if (existsSync(path.join(directory, ".okf", "disabled"))) {
+    return "disabled";
+  }
+  return "undecided";
+}
+
+/**
+ * The complete first-run flow. Synchronous guards keep the startup cost of
+ * decided repositories at four existsSync calls; everything slower happens
+ * after this function's first await. Never rejects: failures surface as UI
+ * notifications so a detached invocation cannot become an unhandled
+ * rejection.
+ */
+export async function runSessionStart(
+  event: PiSessionStartEvent,
+  context: PiSessionContext,
+  options: FirstRunOptions = {},
+): Promise<void> {
+  try {
+    if (event.reason !== "startup" && event.reason !== "new") return;
+    if (!context.hasUI) return;
+    if (resolveNoliState(context.cwd) !== "undecided") return;
+
+    let binaryPath: string;
+    try {
+      binaryPath = options.binaryPath ?? configuredBinary();
+    } catch {
+      context.ui.notify(
+        "Noli is installed for Pi but the noli executable was not found; " +
+          "install it on PATH or set NOLI_BINARY_PATH.",
+        "warning",
+      );
+      return;
+    }
+
+    const choice = await context.ui.select(FIRST_RUN_QUESTION, [FIRST_RUN_YES, FIRST_RUN_NO]);
+    if (choice === FIRST_RUN_NO) {
+      mkdirSync(path.join(context.cwd, ".noli"), { recursive: true });
+      writeFileSync(path.join(context.cwd, ".noli", "disabled"), "developer opted out\n");
+      context.ui.notify("Noli disabled for this repository (.noli/disabled created).", "info");
+      return;
+    }
+    if (choice !== FIRST_RUN_YES) {
+      return; // Dismissed is not a decision; ask again next session.
+    }
+    await bootstrapKnowledgeBase(context, binaryPath, options);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    try {
+      context.ui.notify(`Noli first-run setup failed: ${message}`, "error");
+    } catch {
+      // The UI is gone (session replaced); the next session asks again.
+    }
+  }
+}
+
+/**
+ * Bootstrap per the shared skill: copy the starter configuration and
+ * concepts, then generate and validate the bundle. Existing files are never
+ * overwritten.
+ */
+async function bootstrapKnowledgeBase(
+  context: PiSessionContext,
+  binaryPath: string,
+  options: FirstRunOptions,
+): Promise<void> {
+  const configTemplate = readFileSync(
+    starterPath("noli-starter.yaml", options.starterConfigPath),
+    "utf8",
+  );
+  const conceptsTemplate = readFileSync(
+    starterPath("noli-starter-concepts.yaml", options.starterConceptsPath),
+    "utf8",
+  );
+
+  const configPath = path.join(context.cwd, "noli.yaml");
+  if (!existsSync(configPath)) {
+    const projectName = (path.basename(context.cwd) || "My Project")
+      .replaceAll("\\", "\\\\")
+      .replaceAll('"', '\\"');
+    writeFileSync(configPath, configTemplate.replace(/^ {2}name: .*$/m, `  name: "${projectName}"`));
+  }
+  const conceptsPath = path.join(context.cwd, ".noli", "concepts.yaml");
+  if (!existsSync(conceptsPath)) {
+    mkdirSync(path.dirname(conceptsPath), { recursive: true });
+    writeFileSync(conceptsPath, conceptsTemplate);
+  }
+
+  await runNoliArgv(
+    binaryPath,
+    ["generate", "--config", "noli.yaml", "--apply", "--format", "json"],
+    context.cwd,
+    options.timeoutMs,
+  );
+  const report = (await runNoliArgv(
+    binaryPath,
+    ["validate", "--root", "knowledge", "--mode", "project", "--config", "noli.yaml", "--format", "json"],
+    context.cwd,
+    options.timeoutMs,
+  )) as { valid?: boolean };
+  if (report?.valid !== true) {
+    throw new NoliError("bootstrap validation reported an invalid bundle", "VALIDATION_FAILED");
+  }
+  context.ui.notify(
+    "Noli knowledge base initialized. Author real concepts in .noli/concepts.yaml " +
+      "and re-run: noli generate --config noli.yaml --apply",
+    "info",
+  );
+}
+
+/** Finds a starter template next to the installed extension. */
+function starterPath(name: string, explicit: string | undefined): string {
+  if (explicit) {
+    return explicit;
+  }
+  const directory =
+    typeof import.meta.dirname === "string"
+      ? import.meta.dirname
+      : path.dirname(fileURLToPath(import.meta.url));
+  const candidates = [
+    path.join(directory, name),
+    path.join(directory, "..", "shared", name),
+  ];
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  throw new NoliError(`starter template ${name} was not found next to the extension`, "INTERNAL_ERROR");
+}
+
+/**
+ * Runs one bootstrap noli command with a bounded lifetime and returns the
+ * envelope's data payload. Argument arrays only, no shell; distinct from the
+ * frozen five-operation runner, which stays read-only.
+ */
+function runNoliArgv(
+  binaryPath: string,
+  args: string[],
+  cwd: string,
+  timeoutMs = 60_000,
+): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(binaryPath, args, { cwd, shell: false, stdio: ["ignore", "pipe", "ignore"] });
+    const chunks: Buffer[] = [];
+    let settled = false;
+    const timer = setTimeout(() => {
+      settle(() => {
+        child.kill("SIGKILL");
+        child.stdout.destroy();
+        reject(new NoliError(`noli ${args[0]} timed out after ${timeoutMs}ms`, "TIMEOUT"));
+      });
+    }, timeoutMs);
+    const settle = (finish: () => void): void => {
+      if (!settled) {
+        settled = true;
+        clearTimeout(timer);
+        finish();
+      }
+    };
+    child.stdout.on("data", (chunk: Buffer) => chunks.push(Buffer.from(chunk)));
+    child.on("error", (error) => {
+      settle(() => reject(new NoliError(`failed to launch noli: ${error.message}`, "INTERNAL_ERROR")));
+    });
+    child.on("close", (exitCode) => {
+      settle(() => {
+        let envelope: { ok?: boolean; data?: unknown; error?: { code?: string; message?: string } };
+        try {
+          envelope = JSON.parse(Buffer.concat(chunks).toString("utf8")) as typeof envelope;
+        } catch {
+          reject(new NoliError(`noli ${args[0]} returned invalid JSON (exit ${exitCode})`, "INVALID_JSON", exitCode));
+          return;
+        }
+        if (envelope.ok !== true) {
+          reject(new NoliError(
+            envelope.error?.message ?? `noli ${args[0]} failed with exit code ${exitCode}`,
+            envelope.error?.code ?? "INTERNAL_ERROR",
+            exitCode,
+          ));
+          return;
+        }
+        resolve(envelope.data);
+      });
+    });
+  });
+}
+
 /** Pi's required default extension factory. */
 export default function noliExtension(pi: PiExtensionAPI): void {
   const tools = toolsWithOptions((context) => ({
@@ -265,4 +527,9 @@ export default function noliExtension(pi: PiExtensionAPI): void {
   for (const tool of tools) {
     pi.registerTool(tool);
   }
+  pi.on?.("session_start", (event, context) => {
+    // Fire-and-forget: Pi awaits session_start handlers during startup, so
+    // the handler returns immediately and the dialog runs detached.
+    void runSessionStart(event, context);
+  });
 }

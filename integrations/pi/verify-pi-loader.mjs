@@ -39,6 +39,7 @@ assert.deepEqual([...loaded.extensions[0].tools.keys()], [
   "noli_get",
   "noli_graph",
 ]);
+assert.equal(loaded.extensions[0].handlers.get("session_start")?.length, 1);
 
 const binaryPath = path.join(repositoryRoot, "bin", "noli");
 if (existsSync(binaryPath)) {
@@ -67,4 +68,4 @@ if (existsSync(binaryPath)) {
   delete process.env.OKF_BINARY_PATH;
 }
 
-console.log("Noli Pi loader compatibility: PASS (5 tools registered)");
+console.log("Noli Pi loader compatibility: PASS (5 tools + session_start handler registered)");

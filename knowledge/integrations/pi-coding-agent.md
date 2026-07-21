@@ -15,12 +15,12 @@ tools:
   - noli_retrieve
   - noli_get
   - noli_graph
-verified_api: "0.78"
+verified_api: "0.80"
 ---
 
 ## Usage
 
-Run `integrations/pi/install.sh` for a target repository, or pass `--global` to install the extension, shared skill, and managed first-run guidance for the current user across repositories. Ensure `noli` is on PATH or set an absolute `NOLI_BINARY_PATH`. The extension rejects shell execution, path escapes, invalid protocol output, timeout, cancellation, and output overflow. Run the Pi uninstaller with `--global` to safely remove its native assets and release its ownership of the shared skill.
+Run `integrations/pi/install.sh` for a target repository, or pass `--global` to install the extension, starter templates, shared skill, and managed first-run guidance for the current user across repositories. Ensure `noli` is on PATH or set an absolute `NOLI_BINARY_PATH`. On session start in an undecided repository the extension shows the first-run Yes/No dialog without blocking startup: Yes bootstraps and validates a starter knowledge base, No writes the `.noli/disabled` sentinel, and dismissal asks again next session. The extension rejects shell execution, path escapes, invalid protocol output, timeout, cancellation, and output overflow. Run the Pi uninstaller with `--global` to safely remove its native assets and release its ownership of the shared skill.
 
 ## Relationships
 
