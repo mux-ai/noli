@@ -17,6 +17,9 @@ commands:
   - drift
   - generate
   - prepare-agent-context
+  - enable
+  - disable
+  - clean
 implementation_paths:
   - cmd/noli
   - cmd/okf

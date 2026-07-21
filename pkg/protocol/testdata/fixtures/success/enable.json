@@ -1,0 +1,1 @@
+{"ok":true,"command":"enable","version":1,"data":{"dir":".","state":"enabled","changed":true,"created":["noli.yaml",".noli/concepts.yaml"],"removed_sentinels":[".noli/disabled"],"generated":true}}

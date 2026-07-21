@@ -153,7 +153,7 @@ concepts:
     tags: [cli, local-tools, json]
     attributes:
       implementation_paths: [cmd/noli, cmd/okf, internal/cli]
-      commands: [status, list, search, retrieve, get, graph, validate, drift, generate, prepare-agent-context]
+      commands: [status, list, search, retrieve, get, graph, validate, drift, generate, prepare-agent-context, enable, disable, clean]
     sections:
       - heading: Responsibilities
         content: >-

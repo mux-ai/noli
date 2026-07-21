@@ -137,6 +137,9 @@ given synthetic OKF frontmatter.
 | `drift` | Read-only drift report: hand-edited knowledge + undocumented repository changes |
 | `generate` | Deterministic bundle generation; `--dry-run` or `--apply` |
 | `prepare-agent-context` | Prebuilt context files + manifest for agent runs |
+| `enable` | Turn Noli on for a repository (all agents): remove opt-out sentinels, bootstrap + generate a starter knowledge base if none exists |
+| `disable` | Record the opt-out (`.noli/disabled`) so no agent asks or retrieves |
+| `clean` | Remove all Noli files from a project; preview by default, deletes only with `--force` after the developer confirms |
 
 All commands emit a single JSON line on stdout (`--format json` is the
 default and only format). Successful commands leave stderr empty.

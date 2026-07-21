@@ -114,8 +114,26 @@ noli get      --root knowledge --id <document-id> --format json
 noli graph    --root knowledge --id <document-id> --direction both --format json
 noli validate --root knowledge --mode standard --format json
 noli drift    --config noli.yaml --format json             # exit 4 = knowledge drifted
-
+noli enable   --dir . --format json  # switch this repository on for all agents
+noli disable  --dir . --format json  # record the opt-out for all agents
+noli clean    --dir . --format json  # PREVIEW ONLY: list what a clean would delete
 ```
+
+## Removing Noli from a project (destructive — confirm first)
+
+`noli clean` deletes the knowledge base, configuration, and state files.
+It is two-phase, and the confirmation step is mandatory:
+
+1. Run the preview: `noli clean --dir . --format json` (deletes nothing).
+2. Show the developer the full `data.removed` list and warn that this
+   permanently deletes all knowledge files, including hand-authored
+   concepts in `.noli/concepts.yaml`.
+3. Ask explicitly: *"Really delete all Noli knowledge and configuration
+   from this project? (yes/no)"* — never assume consent, never infer it
+   from a general request to "tidy up".
+4. Only after an explicit yes: `noli clean --dir . --force`.
+5. Never run `--force` in the same step as the preview, and never suggest
+   deleting anything outside the reported list.
 
 ## Contract
 

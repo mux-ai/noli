@@ -32,6 +32,9 @@ func New(stdout, stderr io.Writer) *App {
 		"graph":                 app.runGraph,
 		"validate":              app.runValidate,
 		"drift":                 app.runDrift,
+		"enable":                app.runEnable,
+		"disable":               app.runDisable,
+		"clean":                 app.runClean,
 		"generate":              app.runGenerate,
 		"prepare-agent-context": app.runPrepare,
 	}

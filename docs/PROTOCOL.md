@@ -86,7 +86,26 @@ Notes:
 ## 4. Commands and frozen defaults
 
 Read-only commands: `status`, `list`, `search`, `retrieve`, `get`, `graph`,
-`validate`, `drift`. Write commands: `generate`, `prepare-agent-context`.
+`validate`, `drift`. Write commands: `generate`, `prepare-agent-context`,
+`enable`, `disable`, `clean`.
+
+`enable --dir <repository>` (default `.`) removes the `.noli/disabled` and
+legacy `.okf/disabled` opt-out sentinels; when neither `noli.yaml` nor
+`knowledge/` exists it writes the embedded starter configuration (with
+`project.name` derived from the directory name) and `.noli/concepts.yaml`,
+then generates and validates the bundle. `disable --dir <repository>`
+writes `.noli/disabled` with `developer opted out`. Both are idempotent and
+report `changed: false` when the state already matched; because every agent
+integration reads the same files, one invocation switches the repository
+for all coding agents.
+
+`clean --dir <repository>` is two-phase: without `--force` it is a pure
+preview that lists every existing Noli-related path (knowledge root,
+`noli.yaml`, `.noli/`, the agent queries file, and the deprecated `okf`
+counterparts) and deletes nothing; with `--force` it deletes exactly those
+paths. Agents MUST show the developer the preview list and obtain explicit
+confirmation before running `--force` — clean destroys developer-authored
+knowledge.
 
 | Flag | Default |
 |---|---|
@@ -100,6 +119,8 @@ Read-only commands: `status`, `list`, `search`, `retrieve`, `get`, `graph`,
 | `graph --direction` | `both` |
 | `graph --max-hops` | `1` |
 | `validate --mode` | `standard` |
+| `enable --dir` | `.` |
+| `disable --dir` | `.` |
 
 `--types` accepts a comma-separated list; matching is case-insensitive on the
 trimmed type name and applies to both search seeds and expanded candidates.

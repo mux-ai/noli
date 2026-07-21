@@ -203,6 +203,34 @@ type DriftData struct {
 	Drifted           bool            `json:"drifted"`
 }
 
+// EnableData is the "enable" success payload: the repository's Noli state
+// after removing opt-out sentinels and bootstrapping missing knowledge.
+type EnableData struct {
+	Dir              string   `json:"dir"`
+	State            string   `json:"state"`
+	Changed          bool     `json:"changed"`
+	Created          []string `json:"created"`
+	RemovedSentinels []string `json:"removed_sentinels"`
+	Generated        bool     `json:"generated"`
+}
+
+// DisableData is the "disable" success payload: the recorded opt-out.
+type DisableData struct {
+	Dir      string `json:"dir"`
+	State    string `json:"state"`
+	Changed  bool   `json:"changed"`
+	Sentinel string `json:"sentinel"`
+}
+
+// CleanData is the "clean" success payload. Preview mode lists what would
+// be deleted and deletes nothing; clean mode reports what was deleted.
+type CleanData struct {
+	Dir     string   `json:"dir"`
+	Mode    string   `json:"mode"`
+	Removed []string `json:"removed"`
+	Changed bool     `json:"changed"`
+}
+
 // PrepareQueryData is one prepared context entry.
 type PrepareQueryData struct {
 	Name      string   `json:"name"`

@@ -203,6 +203,32 @@ func TestDriftFixture(t *testing.T) {
 	}))
 }
 
+func TestEnableDisableFixtures(t *testing.T) {
+	assertMatchesFixture(t, "success/enable.json", Success("enable", EnableData{
+		Dir:              ".",
+		State:            "enabled",
+		Changed:          true,
+		Created:          []string{"noli.yaml", ".noli/concepts.yaml"},
+		RemovedSentinels: []string{".noli/disabled"},
+		Generated:        true,
+	}))
+	assertMatchesFixture(t, "success/disable.json", Success("disable", DisableData{
+		Dir:      ".",
+		State:    "disabled",
+		Changed:  true,
+		Sentinel: ".noli/disabled",
+	}))
+}
+
+func TestCleanFixture(t *testing.T) {
+	assertMatchesFixture(t, "success/clean.json", Success("clean", CleanData{
+		Dir:     ".",
+		Mode:    "preview",
+		Removed: []string{".noli", "knowledge", "noli-agent-queries.yaml", "noli.yaml"},
+		Changed: false,
+	}))
+}
+
 func TestPrepareFixture(t *testing.T) {
 	assertMatchesFixture(t, "success/prepare-agent-context.json", Success("prepare-agent-context", PrepareData{
 		Output:      "/tmp/noli-agent-context-verification",
