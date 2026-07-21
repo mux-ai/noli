@@ -14,6 +14,7 @@ commands:
   - get
   - graph
   - validate
+  - drift
   - generate
   - prepare-agent-context
 implementation_paths:

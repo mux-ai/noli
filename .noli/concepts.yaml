@@ -153,7 +153,7 @@ concepts:
     tags: [cli, local-tools, json]
     attributes:
       implementation_paths: [cmd/noli, cmd/okf, internal/cli]
-      commands: [status, list, search, retrieve, get, graph, validate, generate, prepare-agent-context]
+      commands: [status, list, search, retrieve, get, graph, validate, drift, generate, prepare-agent-context]
     sections:
       - heading: Responsibilities
         content: >-
@@ -590,6 +590,27 @@ concepts:
         to: Bounded Retrieval Engine
       - predicate: enforced-by
         to: Bounded Deterministic Retrieval
+
+  - id: workflows/detect-knowledge-drift
+    type: Workflow
+    title: Detect Knowledge Drift
+    description: Find knowledge that no longer matches its concept source or repository changes that nobody documented.
+    tags: [maintenance, drift, validation]
+    sections:
+      - heading: Steps
+        content: |-
+          1. Run `noli drift --config noli.yaml` (read-only; nothing is written).
+          2. Inspect `bundle`: added, changed, or removed IDs mean the active knowledge diverged from `.noli/concepts.yaml`, usually through hand edits.
+          3. Inspect `undocumented_files`: repository files changed since the last knowledge-touching commit without a knowledge update.
+          4. Resolve bundle drift by updating the concept source and re-applying generation; resolve undocumented files by authoring the missing concepts.
+          5. Exit code 4 signals drift, so the command can gate commits and CI.
+    relationships:
+      - predicate: uses
+        to: Noli CLI
+      - predicate: uses
+        to: Deterministic Knowledge Generator
+      - predicate: follows
+        to: Update and Regenerate Knowledge
 
   - id: workflows/update-and-regenerate-knowledge
     type: Workflow

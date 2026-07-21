@@ -1,6 +1,7 @@
 # Workflow
 
 * [Bootstrap Repository Knowledge](/workflows/bootstrap-repository-knowledge.md) - Initialize a repository-local, spec-compatible OKF knowledge bundle from structured concepts.
+* [Detect Knowledge Drift](/workflows/detect-knowledge-drift.md) - Find knowledge that no longer matches its concept source or repository changes that nobody documented.
 * [Prepare Agent Context](/workflows/prepare-agent-context.md) - Materialize named retrieval queries into reproducible context files before an agent session.
 * [Retrieve Knowledge Before Coding](/workflows/retrieve-before-coding.md) - Ground an implementation task in bounded project knowledge before editing code.
 * [Run Acceptance Gates](/workflows/run-acceptance-gates.md) - Verify implementation, conformance, protocol, integrations, race safety, and deterministic behavior before completion.

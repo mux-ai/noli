@@ -69,30 +69,11 @@ func Generate(config *Config, options GenerateOptions) (GenerateResult, error) {
 	}
 	defer func() { _ = lock.Release() }()
 
-	inputs, err := loadConcepts(config)
+	// PLANS.md section 5.5 fallback: with no structured inputs, the active
+	// bundle is parsed and deterministically re-rendered (source
+	// normalization: BOM stripped, line endings normalized).
+	documents, err := renderedDocuments(config, activeRoot)
 	if err != nil {
-		return GenerateResult{}, err
-	}
-	var documents map[string][]byte
-	if len(inputs) > 0 {
-		concepts, err := resolveConcepts(config, inputs)
-		if err != nil {
-			return GenerateResult{}, err
-		}
-		documents, err = renderBundle(config, concepts)
-		if err != nil {
-			return GenerateResult{}, err
-		}
-	} else {
-		// PLANS.md section 5.5 fallback: with no structured inputs, the
-		// active bundle is parsed and deterministically re-rendered (source
-		// normalization: BOM stripped, line endings normalized).
-		documents, err = passthroughBundle(config, activeRoot)
-		if err != nil {
-			return GenerateResult{}, err
-		}
-	}
-	if err := preserveLogs(activeRoot, config.Security.Exclude, documents); err != nil {
 		return GenerateResult{}, err
 	}
 	active, err := hashActiveBundle(activeRoot, config.Security.Exclude)

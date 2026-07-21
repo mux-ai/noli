@@ -113,6 +113,8 @@ noli search   --root knowledge --query "..." --format json # ranked hits only
 noli get      --root knowledge --id <document-id> --format json
 noli graph    --root knowledge --id <document-id> --direction both --format json
 noli validate --root knowledge --mode standard --format json
+noli drift    --config noli.yaml --format json             # exit 4 = knowledge drifted
+
 ```
 
 ## Contract

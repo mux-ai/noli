@@ -176,6 +176,33 @@ type GenerateData struct {
 	Unchanged   []string `json:"unchanged"`
 }
 
+// DriftBundleData reports whether the active knowledge still matches its
+// rendered concept source, by document ID.
+type DriftBundleData struct {
+	InSync  bool     `json:"in_sync"`
+	Added   []string `json:"added"`
+	Changed []string `json:"changed"`
+	Removed []string `json:"removed"`
+}
+
+// DriftFileData is one repository file changed since the knowledge baseline
+// without a matching knowledge update.
+type DriftFileData struct {
+	Path  string `json:"path"`
+	State string `json:"state"`
+}
+
+// DriftData is the "drift" success payload. A drifted project is still a
+// success envelope; the exit code carries the failure, mirroring "validate".
+type DriftData struct {
+	Config            string          `json:"config"`
+	Bundle            DriftBundleData `json:"bundle"`
+	Git               string          `json:"git"`
+	Baseline          string          `json:"baseline"`
+	UndocumentedFiles []DriftFileData `json:"undocumented_files"`
+	Drifted           bool            `json:"drifted"`
+}
+
 // PrepareQueryData is one prepared context entry.
 type PrepareQueryData struct {
 	Name      string   `json:"name"`

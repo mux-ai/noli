@@ -27,3 +27,4 @@ go.work.sum
 **/.noli/agent-context/
 **/.noli/write.lock
 **/.noli/agent-context.lock
+.claude/

@@ -1,0 +1,1 @@
+{"ok":true,"command":"drift","version":1,"data":{"config":"noli.yaml","bundle":{"in_sync":false,"added":[],"changed":["concepts/todo-item"],"removed":[]},"git":"available","baseline":"3f785ce6a0b1a2c3d4e5f60718293a4b5c6d7e8f","undocumented_files":[{"path":"src/main.py","state":"added"}],"drifted":true}}

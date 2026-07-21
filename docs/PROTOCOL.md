@@ -72,11 +72,21 @@ Notes:
   rolling back).
 - `CONTEXT_LIMIT_TOO_SMALL` is raised when even a single source header cannot
   fit into `--max-characters`.
+- `noli drift` reports a drifted project as a **success envelope** with exit
+  code 4 when `drifted` is true and 0 otherwise, mirroring `validate`. It is
+  read-only: the concept source is rendered in memory and diffed against the
+  active knowledge (`bundle`), and repository files changed since the last
+  commit touching the knowledge root, `.noli/`, `noli.yaml`, or a configured
+  concept file are reported as `undocumented_files` with states `added`,
+  `modified`, `deleted`, `renamed`, `copied`, or `untracked`. Without a
+  usable git repository, `git` is `"unavailable"`, `baseline` is empty, and
+  `undocumented_files` is `[]`; only bundle drift is detected. `drift`
+  requires `--config`.
 
 ## 4. Commands and frozen defaults
 
 Read-only commands: `status`, `list`, `search`, `retrieve`, `get`, `graph`,
-`validate`. Write commands: `generate`, `prepare-agent-context`.
+`validate`, `drift`. Write commands: `generate`, `prepare-agent-context`.
 
 | Flag | Default |
 |---|---|

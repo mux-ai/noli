@@ -185,6 +185,24 @@ func TestGenerateFixtures(t *testing.T) {
 	}))
 }
 
+func TestDriftFixture(t *testing.T) {
+	assertMatchesFixture(t, "success/drift.json", Success("drift", DriftData{
+		Config: "noli.yaml",
+		Bundle: DriftBundleData{
+			InSync:  false,
+			Added:   []string{},
+			Changed: []string{"concepts/todo-item"},
+			Removed: []string{},
+		},
+		Git:      "available",
+		Baseline: "3f785ce6a0b1a2c3d4e5f60718293a4b5c6d7e8f",
+		UndocumentedFiles: []DriftFileData{
+			{Path: "src/main.py", State: "added"},
+		},
+		Drifted: true,
+	}))
+}
+
 func TestPrepareFixture(t *testing.T) {
 	assertMatchesFixture(t, "success/prepare-agent-context.json", Success("prepare-agent-context", PrepareData{
 		Output:      "/tmp/noli-agent-context-verification",

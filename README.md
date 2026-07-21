@@ -134,6 +134,7 @@ given synthetic OKF frontmatter.
 | `get` | One document with metadata, typed links, body |
 | `graph` | Bounded relationship neighborhood of one document |
 | `validate` | `--mode standard` or `--mode project --config noli.yaml` |
+| `drift` | Read-only drift report: hand-edited knowledge + undocumented repository changes |
 | `generate` | Deterministic bundle generation; `--dry-run` or `--apply` |
 | `prepare-agent-context` | Prebuilt context files + manifest for agent runs |
 
@@ -164,6 +165,8 @@ Exit codes: `0` success, `2` invalid arguments, `3` loading failure,
 `validate` reports an invalid bundle as a success envelope with exit code 4;
 error-envelope `VALIDATION_FAILED` is reserved for operations that refuse to
 proceed (for example a failed `generate --apply`, which rolls back).
+`drift` follows the same pattern: a drifted project is a success envelope
+with exit code 4, and 0 when clean.
 
 ## OKF v0.1 conformance
 
@@ -259,10 +262,44 @@ inputs produce identical bytes.
 - With no configured inputs, an existing bundle is re-rendered as
   normalized source (BOM stripped, line endings normalized).
 
+## Drift detection
+
+Knowledge goes stale in two ways: someone hand-edits the generated files
+under `knowledge/`, or someone adds or changes code (a README, a program)
+without updating the concept source. `noli drift` detects both without
+writing anything:
+
+```bash
+noli drift --config noli.yaml --format json
+```
+
+- `bundle` renders `.noli/concepts.yaml` in memory and diffs it against the
+  active knowledge by document ID. `in_sync: false` with `added`, `changed`,
+  or `removed` entries means the bundle no longer matches its source —
+  usually hand edits that the next `generate --apply` would overwrite.
+- `undocumented_files` lists repository files changed since the last commit
+  that touched a knowledge path (`knowledge/`, `.noli/`, `noli.yaml`, or a
+  configured concept file), plus all uncommitted and untracked files, each
+  with a state (`added`, `modified`, `deleted`, `renamed`, `copied`,
+  `untracked`). Knowledge paths themselves are excluded. `baseline` is the
+  commit the comparison starts from.
+- Exit code is `4` when `drifted` is true and `0` when clean, so the command
+  works directly as a pre-commit hook or CI gate.
+
+Resolve bundle drift by moving the edits into `.noli/concepts.yaml` and
+re-applying generation; resolve undocumented files by authoring the missing
+concepts. Committing that knowledge update advances the baseline and clears
+the report.
+
+Git is invoked directly with argument arrays (no shell). Outside a git
+repository, or without git installed, `git` is `"unavailable"`,
+`undocumented_files` is empty, and only bundle drift is checked.
+
 ## Security model
 
 - No shell execution anywhere in the SDK; the CLI reads only the supplied
-  roots and configs.
+  roots and configs. The only external process is `git`, invoked by `drift`
+  with fixed argument arrays and never through a shell.
 - Paths are containment-checked after symlink resolution; NUL bytes,
   traversal, backslashes, and sensitive components (`.git`, `.env*`,
   `secrets`, `credentials`, keys, `node_modules`, `vendor`, `build`) are
